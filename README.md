@@ -12,9 +12,8 @@ Part of the Cloudimage plugin family — sibling to [`@cloudimage/360-view`](../
 - **Multiple source adapters** (HTML5, HLS, DASH) and **multiple projections** (equirectangular, fisheye, dual-fisheye) — all pluggable, all lazy-loaded.
 - **Visual identity 1:1 with [`@cloudimage/video-hotspot`](../Video%20hotspot%20plugin)** — same CSS variables, same toolbar metrics, same Lucide icons. Themable via CSS custom properties.
 - **Full-featured toolbar**: play/pause, mute + volume, scrub progress with time tooltip, **speed selector** (0.5×–2×), **quality selector** (HLS/DASH levels), loop toggle, fullscreen, idle auto-hide, GPU-warning chip.
-- **Phone VR** — a built-in split-screen "cardboard" stereo view (toolbar button or `setVRView()`); genuinely stereo sources get per-eye depth. Immersive **WebXR headset** mode remains an engine seam.
-- **Auto stereo detection** — `stereo: 'auto'` reads the MP4's Spherical Video metadata (`st3d` / `GSpherical`) so correctly tagged top-bottom / side-by-side files just work.
-- **Extension seams** for **hotspot/overlay layers** and immersive WebXR — engine slots wired up — so adding them later is targeted, not a rewrite.
+- **Auto stereo detection** — `stereo: 'auto'` reads the MP4's Spherical Video metadata (`st3d` / `GSpherical`) so correctly tagged top-bottom / side-by-side files render the correct eye automatically.
+- **Extension seams** for **hotspot/overlay layers** — engine slots wired up — so adding them later is targeted, not a rewrite.
 - **SSR-safe** React wrapper (dynamic import in `useEffect`) — works in Next.js / Remix without "ReferenceError: window is not defined".
 
 ## Installation
@@ -117,7 +116,7 @@ The React wrapper dynamically imports the core, so it's safe to import from a Ne
 
 Leave `stereo: 'auto'` (the default) and the layout is detected from the MP4's embedded Spherical Video metadata — both the modern **V2** `st3d` box (YouTube / Google `spatialmedia`) and the older **V1** `GSpherical` XML (`<GSpherical:StereoMode>`) are read — so correctly tagged stereo files just work with no manual toggle. Detection is a small HTTP range read over the `moov` box (no media download) and falls back to `'mono'` when the metadata is absent or the source can't be probed (HLS/DASH, no range support, non-MP4). Force a layout explicitly with `stereo: 'top-bottom'` / `'side-by-side'` / `'mono'`.
 
-In the normal flat view the player renders the **left eye** on the sphere. For phone VR there's a built-in **cardboard split-screen** mode — set `vrButton: true` for the toolbar toggle, or call `player.setVRView(true)`: the scene is rendered twice into side-by-side left/right viewports, and the gyroscope is enabled so turning the phone looks around. A genuinely stereo source (e.g. top-bottom) gives each eye its own image (real depth); a mono source shows the same image in both eyes (immersive, but flat — you can't synthesise depth from one camera). A full immersive WebXR headset session (`enterVR()`) remains an extension point in `src/xr/webxr.ts`.
+For a stereo source the player renders the **left eye** on the sphere — so a top-bottom or side-by-side file is cropped to a single, correct image instead of showing the doubled-up frame. The view stays a normal flat (mono) 360° pan.
 
 ## Generating test content with ffmpeg
 
@@ -178,7 +177,6 @@ All fields are optional except `src`.
 | `fullscreenButton`  | `boolean`             | `true`             | |
 | `speedButton`       | `boolean`             | `true`             | Show playback-speed pill button (0.5×–2×). |
 | `qualityButton`     | `boolean`             | `true`             | Show quality pill button. Auto-hidden when the adapter reports no levels (i.e. for plain MP4). |
-| `vrButton`          | `boolean`             | `false`            | Show the VR button — toggles the split-screen "cardboard" stereo view (phone VR, no headset). |
 | `sphereSegments`    | `number`              | `64`               | Higher = smoother, more triangles. |
 | `pixelRatio`        | `number`              | `2`                | Max DPR cap. |
 | `antialias`         | `boolean`             | `true`             | |
@@ -221,10 +219,6 @@ latLonToScreen(lon: number, lat: number): { x, y, visible }  // foundation for h
 enterFullscreen(): void
 exitFullscreen(): void
 isFullscreen(): boolean
-
-setVRView(on?: boolean): void       // toggle/set split-screen "cardboard" stereo (phone VR)
-isVRView(): boolean
-enterVR(): Promise<void>            // real WebXR headset session — extension point (no-op without a device)
 
 update(partialConfig): void          // live-update theme, controls, view limits
 destroy(): void
@@ -286,7 +280,7 @@ import { CI360Video } from '@cloudimage/360-video';
 import { fromFilerobotFile } from '@cloudimage/360-video/filerobot';
 
 new CI360Video('#player', {
-  ...fromFilerobotFile(file), // file: FilerobotFile from your API call
+  ...fromFilerobotFile(file), // file: FilerobotFileLike from your API call
   autoplay: true,
   muted: true,
 });
@@ -311,11 +305,11 @@ The subpath is tree-shaken — consumers who don't import `/filerobot` ship zero
 
 ## Extension points (engine wired, UIs deferred)
 
-- **Immersive WebXR headset.** Phone cardboard VR ships today (`setVRView()` / `vrButton`); a full headset session (`enterVR()`) is still a seam. The render loop already uses `renderer.setAnimationLoop`, so enabling it is a localized change in `src/xr/webxr.ts` — the per-eye `mapUVForEye` seam means the stereo half is already done.
+- **Stereo / VR rendering.** The per-eye `mapUVForEye` seam and a split-screen render path already exist in the engine (`src/xr/webxr.ts`, `src/texture/eye-mapping.ts`); the phone-cardboard and immersive-WebXR **UIs are deferred** for the first release. The render loop already uses `renderer.setAnimationLoop`, so wiring them back is a localized change.
 - **Hotspot / overlay layer.** `src/overlays/overlay-layer.ts` exposes `register({ id, lon, lat, element })` + per-frame projection via `latLonToScreen`.
 - **Cubemap / EAC projections.** `src/projection/projection.ts` registry — drop a new file implementing the `Projection` interface to add them.
 - **YouTube / Vimeo.** Architecturally not possible inside our WebGL sphere — see "Supported source formats" above.
 
 ## License
 
-MIT
+[MIT](./LICENSE) © 2026 Scaleflex

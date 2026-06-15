@@ -111,6 +111,8 @@ const DATA_ATTR_MAP: Record<string, { key: keyof CI360VideoConfig; coerce: (v: s
 
   theme:                  { key: 'theme',               coerce: String },
   'fullscreen-button':    { key: 'fullscreenButton',    coerce: toBool },
+  'speed-button':         { key: 'speedButton',         coerce: toBool },
+  'quality-button':       { key: 'qualityButton',       coerce: toBool },
   'vr-button':            { key: 'vrButton',            coerce: toBool },
 
   'sphere-segments':      { key: 'sphereSegments',      coerce: toNumber },

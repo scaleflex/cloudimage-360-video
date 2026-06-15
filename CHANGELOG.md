@@ -10,17 +10,19 @@ All notable changes to `@cloudimage/360-video`.
   - **V2** `st3d` box (`stereo_mode` byte), and
   - **V1** `GSpherical` RDF/XML (`<GSpherical:StereoMode>`, used by ExoPlayer-style files such as `congo.mp4`).
   - Best-effort: HLS/DASH, non-MP4, no-range and CORS failures fall back to `'mono'` without throwing. New module `src/player/spherical-metadata.ts`; new exported type `StereoOption = StereoLayout | 'auto'`.
-- **Phone VR (cardboard) split-screen view** — `vrButton` toggles, or `setVRView(on?)` / `isVRView()` drive, an on-screen left/right split rendered via scissored viewports, with the gyroscope enabled for head-look. Stereo sources get true per-eye images; mono sources show the same image in both eyes. Exposed on the React imperative ref too.
 
 ### Changed
 
 - **Default `stereo` flipped from `'mono'` to `'auto'`** — correctly tagged stereo MP4s now play without a manual toggle. Mono content is unaffected visually; the trade-off is one small range request per MP4 load (errors swallowed).
-- `vrButton` now drives the cardboard view instead of being a warn-stub; `enterVR()` remains the immersive-WebXR-headset extension point.
 
 ### Fixed
 
-- React wrapper now forwards runtime `stereo` prop changes and exposes `setVRView`/`isVRView` on the ref; `StereoOption` re-exported from `/react`.
-- `destroy()` clears the cardboard CSS class (no stale centre-seam when a container is reused); quality/source swaps re-probe stereo in `'auto'` mode; gyroscope is no longer orphaned when entering VR before init completes.
+- React wrapper now forwards runtime `stereo` prop changes; `StereoOption` re-exported from `/react`.
+- Quality/source swaps re-probe stereo in `'auto'` mode.
+
+### Deferred
+
+- Phone-cardboard VR and immersive WebXR (`vrButton` / `setVRView` / `enterVR`) are wired in the engine but **kept out of the first release** — the UI surface is hidden for the minimal version and can be re-enabled later.
 
 ## [1.3.0] - 2026-05-29
 

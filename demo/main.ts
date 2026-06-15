@@ -497,7 +497,6 @@ function hydrateHome(root: HTMLElement): void {
       autoplay: true,
       muted: true,
       loop: true,
-      vrButton: true,
       autoRotate: state.autoRotate,
       invertDrag: state.invertDrag,
       theme: state.theme,
@@ -711,7 +710,6 @@ function renderDocConfiguration(): string {
       [opt('fullscreenButton'), '<code>boolean</code>', '<code>true</code>', 'Show fullscreen button.'],
       [opt('speedButton'), '<code>boolean</code>', '<code>true</code>', 'Show speed pill (0.5×–2×).'],
       [opt('qualityButton'), '<code>boolean</code>', '<code>true</code>', 'Show quality pill (auto-hidden when no levels).'],
-      [opt('vrButton'), '<code>boolean</code>', '<code>false</code>', 'Show the VR button — toggles the split-screen "cardboard" stereo view (phone VR, no headset).'],
     ])}
 
     <h2>Performance &amp; accessibility</h2>
@@ -751,8 +749,6 @@ function renderDocApi(): string {
       [m('setView(view, animate?)'), '<code>void</code>', 'Move the view; <code>animate</code> defaults to true.'],
       [m('latLonToScreen(lon, lat)'), '<code>{ x, y, visible }</code>', 'Project a sphere point to container pixels (hotspot foundation).'],
       [m('enterFullscreen()') + ' · ' + m('exitFullscreen()') + ' · ' + m('isFullscreen()'), '—', 'Fullscreen control.'],
-      [m('setVRView(on?)') + ' · ' + m('isVRView()'), '<code>void</code> / <code>boolean</code>', 'Toggle the split-screen "cardboard" stereo view (phone VR, no headset).'],
-      [m('enterVR()'), '<code>Promise&lt;void&gt;</code>', 'Immersive WebXR headset session — extension point (no-op without a VR device).'],
       [m('update(partialConfig)'), '<code>void</code>', 'Live-update theme, controls, view limits, etc.'],
       [m('destroy()'), '<code>void</code>', 'Tear down WebGL, DOM and listeners.'],
       [m('getThreeObjects()'), '<code>{ scene, camera, renderer, mesh } | null</code>', 'Escape hatch to the Three.js objects.'],
@@ -994,7 +990,7 @@ const STEREOS: { id: 'auto' | 'mono' | 'top-bottom' | 'side-by-side'; label: str
   { id: 'mono',         label: 'Mono' },
 ];
 function renderExampleStereo(): string {
-  return examplePage('Stereo 3D', 'For stereo sources the player renders the <strong>left eye</strong> on the sphere (non-VR mono view). Leave <code>stereo: \'auto\'</code> (the default) and the layout is read from the MP4\'s Spherical metadata (<code>st3d</code> / <code>GSpherical</code>) — no manual toggle. Hit the VR button for the split-screen cardboard view (real per-eye depth on a stereo source).', `
+  return examplePage('Stereo 3D', 'For stereo sources the player renders the <strong>left eye</strong> on the sphere (non-VR mono view). Leave <code>stereo: \'auto\'</code> (the default) and the layout is read from the MP4\'s Spherical metadata (<code>st3d</code> / <code>GSpherical</code>) — no manual toggle.', `
     <div class="demo-example-controls">
       ${STEREOS.map((s, i) => `<button class="demo-btn demo-btn--ghost ex-stereo-btn${i === 0 ? ' is-active' : ''}" data-stereo="${s.id}" aria-pressed="${i === 0}">${s.label}</button>`).join('')}
     </div>
@@ -1012,7 +1008,7 @@ function hydrateExampleStereo(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-stereo');
   if (!host) return;
   const make = (stereo: 'auto' | 'mono' | 'top-bottom' | 'side-by-side') =>
-    mountPlayer(host, { src: STEREO_TB, stereo, autoplay: true, muted: true, loop: true, vrButton: true });
+    mountPlayer(host, { src: STEREO_TB, stereo, autoplay: true, muted: true, loop: true });
   make('auto');
   root.querySelectorAll<HTMLButtonElement>('.ex-stereo-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
