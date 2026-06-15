@@ -26,7 +26,6 @@ declare global {
 // ---------------------------------------------------------------------------
 
 const DEMO_SRC = 'https://scaleflex.filerobot.com/quqvv_vr-video-sample_auto/hls/video.m3u8'; // HLS 4K
-const MP4_PANO = 'https://threejs.org/examples/textures/pano.mp4';                              // small plain MP4
 const COMP_720 = 'https://scaleflex.filerobot.com/plugins/cloudimage/player-360/jfk_720p_400K_compressed.mp4?func=proxy';
 const COMP_480 = 'https://scaleflex.filerobot.com/.internal/videos/compressed/ed2e03cf-b96e-5d58-9c7e-284104e50000/480p_400K_compressed.mp4?func=proxy';
 const LAKE_HLS = 'https://scaleflex.filerobot.com/yeswy_Enhanced_Test_Lake_Video_w_Music_auto/hls/video.m3u8';
@@ -38,17 +37,6 @@ const NPM_URL = 'https://www.npmjs.com/package/@cloudimage/360-video';
 /** Switchable sources for the landing live demo. Short, plain labels. */
 const HOME_VARIANTS: { label: string; cfg: Partial<CI360VideoConfig> }[] = [
   { label: '4K', cfg: { src: DEMO_SRC } },        // HLS adaptive, up to 4K
-  { label: 'Pano', cfg: { src: MP4_PANO } },      // small plain MP4
-  {
-    label: 'Airport',                              // jfk — separate-file qualities
-    cfg: {
-      src: COMP_720,
-      sources: [
-        { src: COMP_720, label: '720p', height: 720, default: true },
-        { src: COMP_480, label: '480p', height: 480 },
-      ],
-    },
-  },
   { label: 'Lake', cfg: { src: LAKE_HLS } },      // HLS adaptive (16:9 source)
   { label: 'Stereo', cfg: { src: STEREO_TB } },   // top-bottom — stereo:'auto' detects it
 ];
@@ -884,13 +872,13 @@ function liveHost(id: string): string {
 
 // -- Basic --------------------------------------------------------------------
 function renderExampleBasic(): string {
-  return examplePage('Basic usage', 'A single <code>CI360Video</code> on a plain equirectangular MP4 — drag, zoom, and use the toolbar.', `
+  return examplePage('Basic usage', 'A single <code>CI360Video</code> on an equirectangular 360° clip (adaptive HLS, up to 4K) — drag, zoom, and use the toolbar.', `
     ${liveHost('ex-basic')}
     ${tabbedCode([
       { label: 'JavaScript', code: `import { CI360Video } from '@cloudimage/360-video';
 
 new CI360Video('#player', {
-  src: '${MP4_PANO}',
+  src: '${DEMO_SRC}', // equirectangular 360°, adaptive HLS (up to 4K)
   autoplay: true,
   muted: true,
   loop: true,
@@ -903,7 +891,7 @@ new CI360Video('#player', {
 }
 function hydrateExampleBasic(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-basic');
-  if (host) mountPlayer(host, { src: MP4_PANO, autoplay: true, muted: true, loop: true });
+  if (host) mountPlayer(host, { src: DEMO_SRC, autoplay: true, muted: true, loop: true });
 }
 
 // -- React (code only) --------------------------------------------------------
@@ -968,7 +956,7 @@ function hydrateExampleProjections(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-proj');
   if (!host) return;
   const make = (projection: 'equirectangular' | 'fisheye' | 'dual-fisheye') =>
-    mountPlayer(host, { src: MP4_PANO, projection, autoplay: true, muted: true, loop: true });
+    mountPlayer(host, { src: DEMO_SRC, projection, autoplay: true, muted: true, loop: true });
   make('equirectangular');
   root.querySelectorAll<HTMLButtonElement>('.ex-proj-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -1042,7 +1030,7 @@ function renderExampleInitialView(): string {
 }
 function hydrateExampleInitialView(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-initial');
-  if (host) mountPlayer(host, { src: MP4_PANO, initialLon: 120, initialLat: 10, fov: 60, autoplay: true, muted: true, loop: true, autoRotate: true });
+  if (host) mountPlayer(host, { src: DEMO_SRC, initialLon: 120, initialLat: 10, fov: 60, autoplay: true, muted: true, loop: true, autoRotate: true });
 }
 
 // -- Controls & gyroscope -----------------------------------------------------
@@ -1064,7 +1052,7 @@ player.setView({ lon: 0, lat: 0, fov: 75 }, true); // animate back to centre`, '
 function hydrateExampleControls(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-controls');
   if (!host) return;
-  mountPlayer(host, { src: MP4_PANO, autoplay: true, muted: true, loop: true, scrollToZoom: true });
+  mountPlayer(host, { src: DEMO_SRC, autoplay: true, muted: true, loop: true, scrollToZoom: true });
   const state: Record<string, boolean> = { autoRotate: false, invertDrag: false, scrollToZoom: true, gyroscope: false };
   const labels: Record<string, string> = { autoRotate: 'Auto-rotate', invertDrag: 'Invert drag', scrollToZoom: 'Scroll-zoom', gyroscope: 'Gyroscope' };
   root.querySelectorAll<HTMLButtonElement>('[data-ctl]').forEach((btn) => {
@@ -1105,7 +1093,7 @@ function hydrateExampleEvents(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-events');
   const logEl = root.querySelector<HTMLElement>('#ex-events-log');
   if (!host || !logEl) return;
-  const player = mountPlayer(host, { src: MP4_PANO, autoplay: true, muted: true, loop: true });
+  const player = mountPlayer(host, { src: DEMO_SRC, autoplay: true, muted: true, loop: true });
   const log = (m: string) => appendLog(logEl, m);
   player.on('ready', () => log('ready'));
   player.on('play', () => log('play'));
@@ -1201,7 +1189,7 @@ player.update({ theme: 'light' });`, 'css')}
 function hydrateExampleTheming(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-theme');
   if (!host) return;
-  mountPlayer(host, { src: MP4_PANO, autoplay: true, muted: true, loop: true, theme: getStoredTheme() });
+  mountPlayer(host, { src: DEMO_SRC, autoplay: true, muted: true, loop: true, theme: getStoredTheme() });
   const btn = root.querySelector<HTMLButtonElement>('#ex-theme-toggle');
   btn?.addEventListener('click', () => {
     const next: DemoTheme = getStoredTheme() === 'dark' ? 'light' : 'dark';
