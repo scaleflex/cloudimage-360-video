@@ -62,6 +62,19 @@ describe('Toolbar', () => {
     expect(dropdown.classList.contains('ci-360-video-dropdown--open')).toBe(false);
   });
 
+  it('setBuffered repaints the buffered underlay between timeupdate events', () => {
+    // Regression: setBuffered only stored the value and waited for the next
+    // setTime() to repaint, so the buffered bar lagged while paused/buffering
+    // (progress events fire independently of timeupdate).
+    const { toolbar } = makeToolbar();
+    toolbar.setTime(10, 100); // establishes duration; buffered still 0
+    toolbar.setBuffered(50);
+    const buffered = toolbar.element.querySelector<HTMLElement>(
+      '.ci-360-video-progress-buffered',
+    )!;
+    expect(buffered.style.width).toBe('50%');
+  });
+
   it('quality pill is hidden until real levels arrive (no fake preset)', () => {
     const { toolbar } = makeToolbar();
     const wrapper = toolbar.element.querySelector<HTMLElement>(

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   DEFAULT_CONFIG,
   mergeConfig,
+  normalizeConfig,
   parseDataAttributes,
   validateConfig,
 } from '../src/core/config';
@@ -86,6 +87,26 @@ describe('config', () => {
         const errs = validateConfig(mergeConfig({ src: 'a', stereo: layout }));
         expect(errs.some((e) => e.includes('stereo'))).toBe(false);
       }
+    });
+  });
+
+  describe('normalizeConfig', () => {
+    // Regression: inverted bounds fed clamp(x, hi, lo), which silently pinned the
+    // view to a single value. normalizeConfig swaps them so the clamp is sane.
+    it('swaps inverted fovMin / fovMax', () => {
+      const cfg = normalizeConfig(mergeConfig({ src: 'a', fovMin: 90, fovMax: 60 }));
+      expect(cfg.fovMin).toBe(60);
+      expect(cfg.fovMax).toBe(90);
+    });
+    it('swaps inverted latMin / latMax', () => {
+      const cfg = normalizeConfig(mergeConfig({ src: 'a', latMin: 80, latMax: -80 }));
+      expect(cfg.latMin).toBe(-80);
+      expect(cfg.latMax).toBe(80);
+    });
+    it('leaves well-formed bounds untouched', () => {
+      const cfg = normalizeConfig(mergeConfig({ src: 'a', fovMin: 30, fovMax: 100 }));
+      expect(cfg.fovMin).toBe(30);
+      expect(cfg.fovMax).toBe(100);
     });
   });
 });

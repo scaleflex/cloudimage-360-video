@@ -95,7 +95,9 @@ export class DashAdapter extends HTML5Adapter {
         this.dashPlayer.updateSettings?.({
           streaming: { abr: { autoSwitchBitrate: { video: true } } },
         });
-      } else {
+      } else if (typeof id === 'number') {
+        // Guard against a stray string id reaching dash.js (mirrors the HLS
+        // adapter); only numeric level indices map to a concrete rendition.
         this.dashPlayer.updateSettings?.({
           streaming: { abr: { autoSwitchBitrate: { video: false } } },
         });

@@ -13,7 +13,10 @@
     "isolatedModules": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] },
+    "paths": {
+      "@/*": ["src/*"],
+      "@cloudimage/360-video": ["src/index.ts"]
+    },
     "outDir": "dist",
     "declarationDir": "dist",
     "types": ["vite/client", "node"]

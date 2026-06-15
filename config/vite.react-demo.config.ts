@@ -17,6 +17,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // The React wrapper imports the core via the package specifier; in the
+      // demo (which runs from source) point it back at src so dev:react works.
+      '@cloudimage/360-video': resolve(__dirname, '../src/index.ts'),
       '@': resolve(__dirname, '../src'),
     },
   },

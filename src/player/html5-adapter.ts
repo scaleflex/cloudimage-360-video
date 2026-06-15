@@ -44,14 +44,35 @@ export class HTML5Adapter extends VideoPlayerAdapter {
 
     this.video = v;
 
-    // Re-emit standard media events as adapter events.
+    // Re-emit standard media events as adapter events. `error` is special-cased
+    // to carry a real `Error` built from the element's `MediaError` — otherwise
+    // consumers' `onError` would receive the `<video>` element itself, and the
+    // core's `err instanceof Error` check would fall back to a generic message.
     const events = [
       'play', 'pause', 'timeupdate', 'durationchange', 'ended', 'loadedmetadata',
       'waiting', 'playing', 'progress', 'error', 'seeked', 'volumechange', 'ratechange',
     ] as const;
     for (const evt of events) {
-      this.cleanups.push(addListener(v, evt, () => this.emit(evt, v)));
+      if (evt === 'error') {
+        this.cleanups.push(addListener(v, evt, () => this.emit('error', this.mediaError())));
+      } else {
+        this.cleanups.push(addListener(v, evt, () => this.emit(evt, v)));
+      }
     }
+  }
+
+  /** Build a descriptive `Error` from the `<video>` element's `MediaError`. */
+  private mediaError(): Error {
+    const e = this.video.error;
+    if (!e) return new Error('Video playback error');
+    const names: Record<number, string> = {
+      1: 'MEDIA_ERR_ABORTED',
+      2: 'MEDIA_ERR_NETWORK',
+      3: 'MEDIA_ERR_DECODE',
+      4: 'MEDIA_ERR_SRC_NOT_SUPPORTED',
+    };
+    const name = names[e.code] ?? `code ${e.code}`;
+    return new Error(`Video playback error (${name})${e.message ? `: ${e.message}` : ''}`);
   }
 
   mount(container: HTMLElement): void {

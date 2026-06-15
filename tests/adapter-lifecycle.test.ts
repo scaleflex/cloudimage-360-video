@@ -64,6 +64,14 @@ vi.mock('dashjs', () => {
     getBitrateInfoListFor(): unknown[] {
       return [];
     },
+    setQualityForCalls: [] as unknown[][],
+    updateSettingsCalls: [] as unknown[][],
+    setQualityFor(type: string, id: unknown): void {
+      this.setQualityForCalls.push([type, id]);
+    },
+    updateSettings(settings: unknown): void {
+      this.updateSettingsCalls.push([settings]);
+    },
     reset(): void {
       counters.dashReset++;
     },
@@ -76,6 +84,8 @@ vi.mock('dashjs', () => {
           counters.lastDash = player;
           player.calls = [];
           player.handlers = {};
+          player.setQualityForCalls = [];
+          player.updateSettingsCalls = [];
           return player;
         },
       }),
@@ -199,6 +209,23 @@ describe('streaming adapter level-event wiring (cached-manifest race)', () => {
     expect(a.getCurrentQuality()).toBe('auto'); // ... but we report auto
     a.setQuality(1); // pin ⇒ manualLevel 1
     expect(a.getCurrentQuality()).toBe(1);
+  });
+
+  it('DashAdapter.setQuality ignores a non-numeric (stale cosmetic) id', async () => {
+    const a = new DashAdapter({ src: 'x.mpd' });
+    await flush();
+    // Cosmetic string id — must NOT forward to dash.js setQualityFor.
+    a.setQuality('480p');
+    expect(counters.lastDash.setQualityForCalls).toHaveLength(0);
+    // Valid numeric index — pins the rendition.
+    a.setQuality(1);
+    expect(counters.lastDash.setQualityForCalls.at(-1)).toEqual(['video', 1]);
+    // 'auto' — re-enables ABR via updateSettings.
+    a.setQuality('auto');
+    expect(counters.lastDash.updateSettingsCalls.at(-1)![0]).toMatchObject({
+      streaming: { abr: { autoSwitchBitrate: { video: true } } },
+    });
+    a.destroy();
   });
 
   it('DashAdapter subscribes to streamInitialized BEFORE initialize', async () => {

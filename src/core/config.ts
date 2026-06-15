@@ -165,6 +165,32 @@ export function mergeConfig(userConfig: Partial<CI360VideoConfig>): CI360VideoCo
 }
 
 /**
+ * Repair config values that would otherwise silently break the view rather
+ * than just being "invalid". `validateConfig` only *reports*; the player
+ * continues regardless, so a misconfigured `fovMin > fovMax` (or the latitude
+ * equivalent) would feed `clamp(x, hi, lo)` and pin the view to a single value.
+ * Here we swap inverted bounds so the clamp stays well-formed. Mutates and
+ * returns the same object.
+ */
+export function normalizeConfig(config: CI360VideoConfig): CI360VideoConfig {
+  if (
+    config.fovMin !== undefined &&
+    config.fovMax !== undefined &&
+    config.fovMin > config.fovMax
+  ) {
+    [config.fovMin, config.fovMax] = [config.fovMax, config.fovMin];
+  }
+  if (
+    config.latMin !== undefined &&
+    config.latMax !== undefined &&
+    config.latMin > config.latMax
+  ) {
+    [config.latMin, config.latMax] = [config.latMax, config.latMin];
+  }
+  return config;
+}
+
+/**
  * Returns an array of error strings — empty means "valid". Caller decides
  * whether to throw or log; the main class logs each error and continues so
  * a single bad option doesn't crash the player.

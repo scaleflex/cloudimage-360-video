@@ -1,6 +1,27 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
+import { copyFileSync } from 'fs';
 import dts from 'vite-plugin-dts';
+
+/**
+ * Emit a standalone `dist/style.css` alongside the JS bundles.
+ *
+ * The core injects its stylesheet at runtime (imported with `?inline`), so Vite
+ * does not produce a CSS asset on its own. We still publish a real file so the
+ * `"./css"` export resolves — needed by consumers on strict CSP setups that
+ * forbid runtime `<style>` injection and want to self-host the stylesheet.
+ */
+function emitStandaloneCss(): Plugin {
+  return {
+    name: 'ci-360-video-emit-css',
+    closeBundle() {
+      copyFileSync(
+        resolve(__dirname, '../src/styles/index.css'),
+        resolve(__dirname, '../dist/style.css'),
+      );
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
@@ -10,6 +31,7 @@ export default defineConfig({
       rollupTypes: true,
       tsconfigPath: resolve(__dirname, '../tsconfig.build.json'),
     }),
+    emitStandaloneCss(),
   ],
   build: {
     lib: {
@@ -48,7 +70,11 @@ export default defineConfig({
     sourcemap: true,
     minify: 'esbuild',
     outDir: resolve(__dirname, '../dist'),
-    emptyOutDir: false,
+    // First build in the chain (build:bundle → build:react → build:filerobot):
+    // wipe dist once here so stale artifacts from previous builds (e.g. an
+    // old bundled core/dashjs in dist/react) never linger into a publish. The
+    // later react/filerobot builds keep `emptyOutDir: false` so they append.
+    emptyOutDir: true,
   },
   resolve: {
     alias: {

@@ -17,6 +17,35 @@ describe('quality API — HTML5 defaults', () => {
   });
 });
 
+describe('HTML5 adapter — error event payload', () => {
+  // Regression: the adapter used to re-emit the <video> element as the error
+  // arg, so consumers' onError received a DOM node and the core's
+  // `err instanceof Error` check fell back to a generic message.
+  it('emits a real Error built from MediaError, not the <video> element', () => {
+    const a = new HTML5Adapter({ src: 'a.mp4' });
+    const v = a.getVideoElement();
+    Object.defineProperty(v, 'error', {
+      configurable: true,
+      value: { code: 4, message: 'boom' },
+    });
+    let received: unknown;
+    a.on('error', (e: unknown) => { received = e; });
+    v.dispatchEvent(new Event('error'));
+    expect(received).toBeInstanceOf(Error);
+    expect((received as Error).message).toContain('MEDIA_ERR_SRC_NOT_SUPPORTED');
+    expect((received as Error).message).toContain('boom');
+    a.destroy();
+  });
+  it('falls back to a generic Error when MediaError is absent', () => {
+    const a = new HTML5Adapter({ src: 'a.mp4' });
+    let received: unknown;
+    a.on('error', (e: unknown) => { received = e; });
+    a.getVideoElement().dispatchEvent(new Event('error'));
+    expect(received).toBeInstanceOf(Error);
+    a.destroy();
+  });
+});
+
 describe('quality API — HLS adapter mapping', () => {
   /** Stub an `hls.js` instance with the surface our adapter touches. */
   function makeHlsStub(levels: any[]): any {

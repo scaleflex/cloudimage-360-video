@@ -351,12 +351,17 @@ export class Toolbar {
     this.volumeSlider.value = String(v);
   }
   setTime(currentTime: number, duration: number): void {
+    this.lastTime = currentTime;
+    this.lastDuration = duration;
     this.timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
     this.progressBar.update(currentTime, duration, this.lastBuffered);
   }
   setBuffered(bufferedEnd: number): void {
     this.lastBuffered = bufferedEnd;
-    // Re-render with current time stays cheap because update reads aria-valuenow.
+    // Repaint the buffered underlay immediately — `progress` events fire
+    // independently of `timeupdate` (e.g. while paused or buffering), so we
+    // can't wait for the next setTime() to reflect newly-buffered data.
+    this.progressBar.update(this.lastTime, this.lastDuration, this.lastBuffered);
   }
   setSpeed(rate: number): void {
     if (this.speedBtn) this.speedBtn.textContent = `${rate}×`;
@@ -493,6 +498,8 @@ export class Toolbar {
 
   // ---------------- internals ----------------
   private lastBuffered = 0;
+  private lastTime = 0;
+  private lastDuration = 0;
 }
 
 /** Backwards-compatible factory matching the prior `createToolbar()` API. */

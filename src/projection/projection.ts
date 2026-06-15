@@ -18,9 +18,9 @@ export interface ProjectionCreateMaterialOpts {
  * Strategy interface for source-side projection.
  *
  * A `Projection` knows how to turn a video texture into a mesh that, viewed
- * from the centre, looks correct. v1 implements only `equirectangular`;
- * adding `cubemap`, `eac`, or `fisheye` later is a new file implementing this
- * interface — the rest of the engine doesn't change.
+ * from the centre, looks correct. `equirectangular`, `fisheye`, and
+ * `dual-fisheye` are implemented today; adding `cubemap` or `eac` later is a
+ * new file implementing this interface — the rest of the engine doesn't change.
  */
 export interface Projection {
   readonly name: string;

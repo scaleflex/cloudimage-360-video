@@ -8,7 +8,7 @@ import type {
   ThreeObjects,
   ViewState,
 } from './types';
-import { mergeConfig, parseDataAttributes, validateConfig } from './config';
+import { mergeConfig, normalizeConfig, parseDataAttributes, validateConfig } from './config';
 import { createRenderer, handleResize, type RendererHandle, type ResizeHandle } from './renderer';
 import { createScene, createCamera } from './scene';
 import { createRenderLoop, type RenderLoopHandle } from './render-loop';
@@ -144,6 +144,21 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
 
     const errors = validateConfig(this.config);
     errors.forEach((e) => console.warn(`CI360Video config: ${e}`));
+    // Repair inverted view bounds so a bad fovMin/fovMax (or lat) can't pin the
+    // view via a malformed clamp. validateConfig has already warned about them.
+    normalizeConfig(this.config);
+
+    // Stereo cropping is only applied for the equirectangular path; fisheye
+    // shaders ignore it. Warn so an explicit stereo layout on a fisheye source
+    // doesn't silently render the doubled-up frame.
+    if (
+      (this.config.projection === 'fisheye' || this.config.projection === 'dual-fisheye') &&
+      (this.config.stereo === 'top-bottom' || this.config.stereo === 'side-by-side')
+    ) {
+      console.warn(
+        `CI360Video: stereo "${this.config.stereo}" is ignored for projection "${this.config.projection}" — only equirectangular crops stereo sources.`,
+      );
+    }
 
     addClass(this.container, 'ci-360-video');
     this.container.setAttribute('data-theme', this.config.theme ?? 'dark');

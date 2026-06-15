@@ -23,6 +23,8 @@ export default defineConfig({
         'three',
         /^three\/.*/,
         'hls.js',
+        'dashjs',
+        /^dashjs/,
         'react',
         'react-dom',
         'react/jsx-runtime',

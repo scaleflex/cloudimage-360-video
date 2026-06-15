@@ -32,7 +32,7 @@ export function mapUVForEye(texture: Texture, eye: Eye, layout: StereoLayout): v
   if (eye === 'mono' || layout === 'mono') {
     texture.offset.set(0, 0);
     texture.repeat.set(1, 1);
-      return;
+    return;
   }
 
   if (layout === 'top-bottom') {
