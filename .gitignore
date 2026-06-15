@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-demo/
+dist-react-demo/
+dist-cdn/
+plans/
+coverage/
+.DS_Store
+*.local
+.idea/
+.vscode/
+*.log
+.env
+.env.*
+.claude/settings.local.json

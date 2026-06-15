@@ -1,0 +1,430 @@
+/* === @cloudimage/360-video — stylesheet (1:1 visual match with @cloudimage/video-hotspot) === */
+
+.ci-360-video {
+  /* === Controls === */
+  --ci-360-video-controls-bg: rgba(0, 0, 0, 0.75);
+  --ci-360-video-controls-color: #ffffff;
+  --ci-360-video-controls-height: 48px;
+
+  /* === Progress Bar === */
+  --ci-360-video-progress-height: 4px;
+  --ci-360-video-progress-bg: rgba(255, 255, 255, 0.2);
+  --ci-360-video-progress-fill: #ff4444;
+  --ci-360-video-progress-buffered: rgba(255, 255, 255, 0.3);
+
+  /* === Transitions === */
+  --ci-360-video-hover-transition: 200ms ease;
+  --ci-360-video-controls-transition: 300ms ease;
+
+  /* === Focus Ring === */
+  --ci-360-video-focus-ring: #4A90D9;
+
+  /* === Layout === */
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: var(--ci-360-video-controls-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.ci-360-video *,
+.ci-360-video *::before,
+.ci-360-video *::after {
+  box-sizing: border-box;
+}
+
+.ci-360-video-canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* === Loading overlay === */
+.ci-360-video-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+  z-index: 5;
+}
+.ci-360-video-loading--hidden { opacity: 0; }
+.ci-360-video-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ci-360-video-spin 0.8s linear infinite;
+}
+@keyframes ci-360-video-spin { to { transform: rotate(360deg); } }
+
+/* === Error overlay === */
+.ci-360-video-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  text-align: center;
+  padding: 16px;
+  z-index: 6;
+}
+.ci-360-video-error--hidden { display: none; }
+.ci-360-video-error-icon { font-size: 32px; }
+.ci-360-video-error-message { font-size: 14px; max-width: 80%; }
+
+/* === Activate (click-to-play) overlay === */
+.ci-360-video-activate {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 7;
+}
+.ci-360-video-activate:focus { outline: 2px solid var(--ci-360-video-focus-ring); outline-offset: -2px; }
+.ci-360-video-activate-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+.ci-360-video-activate-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Source video (hidden in DOM but present for iOS) === */
+.ci-360-video-source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  left: 0;
+  top: 0;
+}
+
+/* === Toolbar (a.k.a. controls) — 1:1 with video-hotspot === */
+.ci-360-video-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--ci-360-video-controls-bg);
+  color: var(--ci-360-video-controls-color);
+  z-index: 10;
+  transition: opacity var(--ci-360-video-controls-transition),
+              transform var(--ci-360-video-controls-transition);
+  pointer-events: auto;
+}
+
+.ci-360-video-controls--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(100%);
+}
+
+.ci-360-video-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--ci-360-video-controls-height);
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.ci-360-video-controls-left,
+.ci-360-video-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons (base) */
+.ci-360-video-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  transition: background 150ms ease;
+}
+.ci-360-video-controls button:hover { background: rgba(255, 255, 255, 0.1); }
+.ci-360-video-controls button:focus-visible {
+  outline: 2px solid var(--ci-360-video-focus-ring);
+  outline-offset: -2px;
+}
+.ci-360-video-controls button svg { width: 20px; height: 20px; }
+.ci-360-video-controls button:disabled { opacity: 0.3; cursor: default; }
+
+/* Play button (slightly larger icon) */
+.ci-360-video-controls-play-btn svg { width: 22px; height: 22px; }
+
+/* Volume group (inline slider, no popup) */
+.ci-360-video-controls-volume {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ci-360-video-controls-volume-slider {
+  width: 70px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.ci-360-video-controls-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+.ci-360-video-controls-volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: none;
+}
+
+/* Time display */
+.ci-360-video-controls-time {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+/* GPU-limit warning chip (passive indicator, not a button) */
+.ci-360-video-controls-gpu-warning {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 204, 0, 0.18);
+  color: #ffcc00;
+  cursor: help;
+}
+.ci-360-video-controls-gpu-warning--visible { display: inline-flex; }
+.ci-360-video-controls-gpu-warning svg { width: 16px; height: 16px; }
+
+/* Generic pill button (used by speed and quality) */
+.ci-360-video-controls .ci-360-video-pill-btn {
+  width: auto;
+  height: 28px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 100px;
+}
+
+/* Inactive pill (e.g. quality with a single rendition — nothing to switch). */
+.ci-360-video-controls .ci-360-video-pill-btn--disabled,
+.ci-360-video-controls .ci-360-video-pill-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Speed / quality dropdown (shared pattern, pill selector) */
+.ci-360-video-controls-speed,
+.ci-360-video-controls-quality {
+  position: relative;
+}
+.ci-360-video-dropdown {
+  position: absolute;
+  bottom: calc(100% + 20px);
+  right: -45px;
+  transform: translateY(8px);
+  display: flex;
+  gap: 5px;
+  border-radius: 80px;
+  padding: 4px;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 20;
+  white-space: nowrap;
+}
+.ci-360-video-dropdown--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.ci-360-video-controls .ci-360-video-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  height: 30px;
+  padding: 0 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 100px;
+  transition: background 180ms ease, color 180ms ease;
+}
+.ci-360-video-controls .ci-360-video-dropdown-item:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+}
+.ci-360-video-controls .ci-360-video-dropdown-item--active {
+  color: #fff;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Loop / repeat button (off = dimmed, on = full opacity) */
+.ci-360-video-controls-loop-btn {
+  opacity: 0.4;
+  transition: opacity 180ms ease;
+}
+.ci-360-video-controls-loop-btn:hover { opacity: 0.7; }
+.ci-360-video-controls-loop-btn--active { opacity: 1; }
+
+/* VR / cardboard button — highlighted while the split view is active */
+.ci-360-video-controls-vr-btn--active { opacity: 1; color: var(--ci-360-video-accent, #3b82f6); }
+
+/* Cardboard split-screen: a thin centre seam helps line the two eyes up in a
+   phone holder. Sits above the canvas, below the controls, and never eats
+   pointer events. */
+.ci-360-video--cardboard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* === Progress Bar (1:1 with video-hotspot) === */
+.ci-360-video-progress {
+  position: relative;
+  padding: 8px 12px 0;
+  cursor: pointer;
+}
+.ci-360-video-progress-bar {
+  position: relative;
+  width: 100%;
+  height: var(--ci-360-video-progress-height);
+  background: var(--ci-360-video-progress-bg);
+  border-radius: 2px;
+  overflow: visible;
+  transition: height 150ms ease;
+}
+.ci-360-video-progress:hover .ci-360-video-progress-bar { height: 6px; }
+.ci-360-video-progress-buffered {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--ci-360-video-progress-buffered);
+  border-radius: 2px;
+}
+.ci-360-video-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--ci-360-video-progress-fill);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.ci-360-video-progress-handle {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--ci-360-video-progress-fill);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 150ms ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.ci-360-video-progress:hover .ci-360-video-progress-handle,
+.ci-360-video-progress--dragging .ci-360-video-progress-handle {
+  transform: translate(-50%, -50%) scale(1);
+}
+.ci-360-video-progress-tooltip {
+  position: absolute;
+  top: -28px;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.ci-360-video-progress-tooltip--visible { opacity: 1; }
+
+/* === Overlay anchor host (for future hotspot layer) === */
+.ci-360-video-overlays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* === Theme: light === */
+.ci-360-video[data-theme='light'] {
+  --ci-360-video-controls-bg: rgba(255, 255, 255, 0.85);
+  --ci-360-video-controls-color: #111;
+  --ci-360-video-progress-bg: rgba(0, 0, 0, 0.15);
+  --ci-360-video-progress-buffered: rgba(0, 0, 0, 0.3);
+}
+.ci-360-video[data-theme='light'] .ci-360-video-controls button:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
