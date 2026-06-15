@@ -33,6 +33,10 @@ Or via CDN (UMD, attaches `window.CI360Video`):
 <script src="https://unpkg.com/@cloudimage/360-video"></script>
 ```
 
+The UMD build expects its peers as globals: `THREE` is required; for HLS/DASH
+playback also load `hls.js` (global `Hls`) and/or `dashjs` (global `dashjs`)
+*before* the player script. Plain MP4/WebM needs only `THREE`.
+
 ## Quick start
 
 ### Vanilla JS
@@ -97,7 +101,7 @@ The React wrapper dynamically imports the core, so it's safe to import from a Ne
 | Format | Status | Notes |
 |---|---|---|
 | **MP4 / WebM** (HTML5) | ✅ | Direct `<video src=…>`. Default for any URL without a streaming extension. |
-| **HLS** (`.m3u8`) | ✅ | Native on Safari / iOS. Other browsers: `npm i hls.js` — adapter dynamically imports it. |
+| **HLS** (`.m3u8`) | ✅ | Uses `hls.js` (`npm i hls.js`) wherever MSE is supported — the adapter dynamically imports and *prefers* it so the quality menu works. Falls back to the browser's native HLS only on iOS Safari, where `hls.js` can't run. |
 | **DASH** (`.mpd`) | ✅ | Requires `npm i dashjs`. Adapter dynamically imports it. |
 | YouTube / Vimeo iframe | ❌ | Cross-origin sandbox blocks frame access; the WebGL sphere needs the underlying `<video>`. |
 | DRM (Widevine / FairPlay / PlayReady) | ❌ | Out of scope — host responsibility (license server + packaged content). |
@@ -148,7 +152,8 @@ All fields are optional except `src`.
 
 | Field               | Type                  | Default            | Description |
 |---------------------|-----------------------|--------------------|-------------|
-| `src`               | `string`              | —                  | **Required.** MP4 / WebM / `.m3u8` / `.mpd` URL. Adapter is detected from the extension. |
+| `src`               | `string`              | —                  | **Required** (unless `sources` is given). MP4 / WebM / `.m3u8` / `.mpd` URL. Adapter is detected from the extension. |
+| `sources`           | `VideoSource[]`       | —                  | Pre-encoded variants at different qualities. When set, the quality dropdown lists these and picking one swaps the `<video src>` (preserving time + play state); plain `src` is then ignored. See "Toolbar features". |
 | `projection`        | `'equirectangular' \| 'fisheye' \| 'dual-fisheye'` | `'equirectangular'`| See "Supported projections" above. |
 | `stereo`            | `'auto' \| 'mono' \| 'top-bottom' \| 'side-by-side'` | `'auto'` | Stereo source layout. `auto` reads the MP4 Spherical metadata (`st3d` / `GSpherical`); else force a layout. Left eye rendered on sphere. |
 | `lensFovDeg`        | `number` (deg)        | `180`              | Per-lens FOV for fisheye projections. Adjust if a specific camera under-/over-shoots. |
@@ -187,7 +192,21 @@ All fields are optional except `src`.
 
 `onReady`, `onPlay`, `onPause`, `onTimeUpdate(t)`, `onDurationChange(d)`, `onEnded`, `onViewChange({lon,lat,fov})`, `onFullscreenChange(isFs)`, `onError(err)`.
 
-The same events are also emitted as EventEmitter events: `player.on('view-change', …)`. Streaming sources additionally emit:
+The same moments are also emitted as EventEmitter events (`player.on(name, …)`). The event-name strings differ from the callback names:
+
+| Event | Args | Callback equivalent |
+|---|---|---|
+| `ready` | — | `onReady` |
+| `play` | — | `onPlay` |
+| `pause` | — | `onPause` |
+| `timeupdate` | `number` | `onTimeUpdate` |
+| `durationchange` | `number` | `onDurationChange` |
+| `ended` | — | `onEnded` |
+| `view-change` | `ViewState` | `onViewChange` |
+| `fullscreen-change` | `boolean` | `onFullscreenChange` |
+| `error` | `unknown` | `onError` |
+
+Streaming sources additionally emit:
 
 - `qualitylevelsupdated` — args: `QualityLevel[]` — when the adapter first reports levels or the manifest reloads.
 - `qualitychange` — args: `QualityId` (`number | 'auto'`) — when the active level changes (ABR or user pick).
@@ -260,8 +279,9 @@ All colors and metrics are exposed as CSS custom properties prefixed with `--ci-
 
 - Container: `role="application"`, `aria-roledescription="360 video player"`, `tabindex="0"`.
 - Canvas: `role="img"` + `aria-label`.
-- Loading: `aria-live="polite"`. Error: `role="alert"` + `aria-live="assertive"`.
-- Keyboard: arrows = pan view, `+`/`-` = zoom (FOV), space = play/pause, `m` = mute, `f` = fullscreen, `0` = reset view.
+- Loading: `role="status"` + `aria-live="polite"`. Error: `role="alert"` + `aria-live="assertive"`.
+- Progress bar: `role="slider"` with `aria-valuenow` / `aria-valuetext`; ←/→ skip 5 s, Home/End jump to start/end.
+- Keyboard: arrows = pan view, `+`/`=` = zoom in, `-`/`_` = zoom out, space = play/pause, `m` = mute, `f` = fullscreen, `0` = reset view.
 
 ## Browser support
 
@@ -305,7 +325,7 @@ The subpath is tree-shaken — consumers who don't import `/filerobot` ship zero
 
 ## Extension points (engine wired, UIs deferred)
 
-- **Stereo / VR rendering.** The per-eye `mapUVForEye` seam and a split-screen render path already exist in the engine (`src/xr/webxr.ts`, `src/texture/eye-mapping.ts`); the phone-cardboard and immersive-WebXR **UIs are deferred** for the first release. The render loop already uses `renderer.setAnimationLoop`, so wiring them back is a localized change.
+- **Stereo / VR rendering.** The phone-cardboard split-screen path is implemented — `setVRView(on?)` / `isVRView()` on the instance, plus an optional toolbar button behind the `vrButton` config flag (**hidden by default** in this minimal release). Immersive **WebXR** (`enterVR()`) is a stub: it warns and no-ops until a headset session is wired in (`src/xr/webxr.ts`). The render loop already uses `renderer.setAnimationLoop`, so promoting WebXR is a localized change.
 - **Hotspot / overlay layer.** `src/overlays/overlay-layer.ts` exposes `register({ id, lon, lat, element })` + per-frame projection via `latLonToScreen`.
 - **Cubemap / EAC projections.** `src/projection/projection.ts` registry — drop a new file implementing the `Projection` interface to add them.
 - **YouTube / Vimeo.** Architecturally not possible inside our WebGL sphere — see "Supported source formats" above.
