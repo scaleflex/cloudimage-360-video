@@ -20,6 +20,10 @@ export class DashAdapter extends HTML5Adapter {
   private isDestroyed = false;
   /** Resolves after `dashjs` is loaded and attached. `play()` awaits this. */
   private readonly ready: Promise<void>;
+  /** The user's pinned level index, or `null` for ABR/auto. Tracked here (like
+   *  the HLS adapter's `manualLevel`) instead of reading it back from dash.js
+   *  settings, which lag right after a pick and momentarily report `'auto'`. */
+  private manualQuality: number | null = null;
 
   constructor(opts: VideoPlayerAdapterOptions) {
     // Don't let the parent set src — dash.js attaches the source itself.
@@ -80,24 +84,20 @@ export class DashAdapter extends HTML5Adapter {
   }
   override getCurrentQuality(): QualityId {
     if (!this.dashPlayer) return 'auto';
-    try {
-      const auto = this.dashPlayer.getSettings?.()?.streaming?.abr?.autoSwitchBitrate?.video;
-      if (auto !== false) return 'auto';
-      return this.dashPlayer.getQualityFor?.('video') ?? 'auto';
-    } catch {
-      return 'auto';
-    }
+    return this.manualQuality ?? 'auto';
   }
   override setQuality(id: QualityId): void {
     if (!this.dashPlayer) return;
     try {
       if (id === 'auto') {
+        this.manualQuality = null;
         this.dashPlayer.updateSettings?.({
           streaming: { abr: { autoSwitchBitrate: { video: true } } },
         });
       } else if (typeof id === 'number') {
         // Guard against a stray string id reaching dash.js (mirrors the HLS
         // adapter); only numeric level indices map to a concrete rendition.
+        this.manualQuality = id;
         this.dashPlayer.updateSettings?.({
           streaming: { abr: { autoSwitchBitrate: { video: false } } },
         });

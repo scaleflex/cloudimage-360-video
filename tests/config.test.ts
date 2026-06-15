@@ -46,6 +46,20 @@ describe('config', () => {
       const parsed = parseDataAttributes(el);
       expect(Object.keys(parsed)).toHaveLength(0);
     });
+
+    it('parses boolean attributes case-insensitively (True / YES / On)', () => {
+      // Regression: case-sensitive whitelist read 'True'/'YES'/'On' as false.
+      const el = document.createElement('div');
+      el.setAttribute('data-ci-360-video-autoplay', 'True');
+      el.setAttribute('data-ci-360-video-loop', 'YES');
+      el.setAttribute('data-ci-360-video-muted', 'On');
+      el.setAttribute('data-ci-360-video-controls', 'False');
+      const parsed = parseDataAttributes(el);
+      expect(parsed.autoplay).toBe(true);
+      expect(parsed.loop).toBe(true);
+      expect(parsed.muted).toBe(true);
+      expect(parsed.controls).toBe(false);
+    });
   });
 
   describe('validateConfig', () => {

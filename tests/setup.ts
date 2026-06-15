@@ -145,7 +145,7 @@ class MockWebGLRenderer {
   setRenderTarget = vi.fn();
   clear = vi.fn();
   info = { render: { frame: 0 }, memory: {} };
-  capabilities = { isWebGL2: true, maxTextures: 16 };
+  capabilities = { isWebGL2: true, maxTextures: 16, getMaxAnisotropy: () => 1 };
   properties = { get: vi.fn(() => ({})) };
   state = { reset: vi.fn() };
 }

@@ -75,6 +75,9 @@ export function useCI360Video(options: UseCI360VideoOptions): UseCI360VideoRetur
     options.theme, options.fov, options.fovMin, options.fovMax,
     options.latMin, options.latMax,
     options.stereo, // runtime-mutable: core update() re-crops / re-probes
+    // Runtime-mutable too: core update() applies these (mesh rebuild / <video>).
+    options.projection, options.sphereSegments, options.lensFovDeg,
+    options.loop, options.muted,
   ]);
 
   return { containerRef, instance, ready };

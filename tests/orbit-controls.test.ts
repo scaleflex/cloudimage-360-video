@@ -97,6 +97,54 @@ describe('orbit-controls-360 — pointer hijack guard (regression)', () => {
     controls.destroy();
   });
 
+  it('after a pinch, lifting the first finger lets the remaining finger drag', () => {
+    // Regression: activePointerId wasn't re-promoted, so the remaining finger
+    // couldn't pan until the user lifted and re-touched.
+    const container = makeContainer();
+    const camera = new PerspectiveCamera(75, 4 / 3, 0.1, 1100);
+    const view = makeView();
+    const controls = createOrbitControls360(container, camera, view, {
+      enabled: true,
+      dragToRotate: true,
+      rotateSpeed: 1,
+    });
+    const dispatch = (type: string, id: number, x: number, y: number): void => {
+      const ev = new MouseEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true });
+      Object.defineProperty(ev, 'pointerId', { value: id, configurable: true });
+      container.dispatchEvent(ev);
+    };
+    dispatch('pointerdown', 1, 100, 300); // finger A → drag
+    dispatch('pointerdown', 2, 200, 300); // finger B → pinch (drag suspended)
+    dispatch('pointerup', 1, 100, 300); // lift A — B should be promoted to drag
+    const lonBefore = view.getTargetView().lon;
+    dispatch('pointermove', 2, 300, 300); // drag with B: dx = 100
+    expect(view.getTargetView().lon).not.toBe(lonBefore);
+    controls.destroy();
+  });
+
+  it('keeps pinch-zoom alive when a third finger touches (no freeze)', () => {
+    // Regression: a third pointer made size !== 2, freezing the zoom branch.
+    const container = makeContainer();
+    const camera = new PerspectiveCamera(75, 4 / 3, 0.1, 1100);
+    const view = makeView();
+    const controls = createOrbitControls360(container, camera, view, {
+      enabled: true,
+      dragToRotate: true,
+    });
+    const dispatch = (type: string, id: number, x: number, y: number): void => {
+      const ev = new MouseEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true });
+      Object.defineProperty(ev, 'pointerId', { value: id, configurable: true });
+      container.dispatchEvent(ev);
+    };
+    dispatch('pointerdown', 1, 300, 300);
+    dispatch('pointerdown', 2, 500, 300); // pinch baseline dist = 200
+    const fov0 = view.getTargetView().fov;
+    dispatch('pointerdown', 3, 400, 500); // third finger → baseline recaptured
+    dispatch('pointermove', 2, 700, 300); // first pair now 400 apart → ratio 2
+    expect(view.getTargetView().fov).not.toBe(fov0);
+    controls.destroy();
+  });
+
   it('skips wheel events that originate inside the toolbar', () => {
     const container = makeContainer();
     const camera = new PerspectiveCamera(75, 4 / 3, 0.1, 1100);

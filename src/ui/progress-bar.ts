@@ -48,6 +48,7 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
 
   let dragging = false;
   let lastDuration = 0;
+  let lastCurrentTime = 0;
 
   const xToTime = (clientX: number): number => {
     const rect = bar.getBoundingClientRect();
@@ -105,6 +106,18 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     opts.onDragEnd?.();
   };
 
+  // pointercancel = the gesture was interrupted (system gesture, scroll, etc.).
+  // Reset drag UI but DON'T commit a seek to the cancel coordinate — the user
+  // never released to confirm a position.
+  const onCancel = (e: PointerEvent): void => {
+    if (!dragging) return;
+    dragging = false;
+    removeClass(root, 'ci-360-video-progress--dragging');
+    removeClass(tooltip, 'ci-360-video-progress-tooltip--visible');
+    try { if (bar.hasPointerCapture(e.pointerId)) bar.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+    opts.onDragEnd?.();
+  };
+
   // Keyboard support for ARIA slider.
   const onKey = (e: KeyboardEvent): void => {
     if (lastDuration <= 0) return;
@@ -115,15 +128,17 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     else if (e.key === 'End') { opts.onSeek(lastDuration); e.preventDefault(); return; }
     else return;
     e.preventDefault();
-    const current = (Number(bar.getAttribute('aria-valuenow')) / 100) * lastDuration;
-    opts.onSeek(Math.max(0, Math.min(lastDuration, current + delta)));
+    // Nudge from the real current time, NOT the rounded integer `aria-valuenow`
+    // percent — on long videos 1% is many seconds, so reconstructing from it
+    // snapped the seek to a coarse grid instead of moving by `delta`.
+    opts.onSeek(Math.max(0, Math.min(lastDuration, lastCurrentTime + delta)));
   };
 
   const cleanups = [
     addListener(bar, 'pointerdown', onDown as EventListener),
     addListener(bar, 'pointermove', onMove as EventListener),
     addListener(bar, 'pointerup', onUp as EventListener),
-    addListener(bar, 'pointercancel', onUp as EventListener),
+    addListener(bar, 'pointercancel', onCancel as EventListener),
     addListener(root, 'pointermove', onHover as EventListener),
     addListener(root, 'pointerleave', onLeave as EventListener),
     addListener(bar, 'keydown', onKey as EventListener),
@@ -133,6 +148,7 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     element: root,
     update(currentTime, duration, bufferedEnd) {
       lastDuration = duration;
+      lastCurrentTime = currentTime;
       if (!isFinite(duration) || duration <= 0) {
         fill.style.width = '0%';
         buffered.style.width = '0%';

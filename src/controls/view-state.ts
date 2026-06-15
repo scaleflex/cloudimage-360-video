@@ -57,9 +57,13 @@ export class ViewStateManager {
 
   updateOptions(patch: Partial<ViewStateOptions>): void {
     Object.assign(this.opts, patch);
-    // Re-clamp targets in case limits tightened.
+    // Re-clamp targets AND the current (displayed) snapshot in case limits
+    // tightened — otherwise the camera keeps showing an out-of-bounds lat/fov
+    // until damping eases it back in.
     this.targetLat = clamp(this.targetLat, this.opts.latMin, this.opts.latMax);
     this.targetFov = clamp(this.targetFov, this.opts.fovMin, this.opts.fovMax);
+    this.curLat = clamp(this.curLat, this.opts.latMin, this.opts.latMax);
+    this.curFov = clamp(this.curFov, this.opts.fovMin, this.opts.fovMax);
   }
 
   /** Relative change from a drag/keyboard input. */

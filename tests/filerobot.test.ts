@@ -27,6 +27,18 @@ describe('pickFilerobotVideoUrl', () => {
     expect(r.src).toBe('https://cdn.example/video.m3u8');
   });
 
+  it('detects an HLS playlist even when the URL carries a query string', () => {
+    // Regression: signed/transform playlist URLs end with `.m3u8?token=…`; a
+    // plain endsWith('.m3u8') missed them and dropped adaptive streaming.
+    const file: FilerobotFileLike = {
+      url: { cdn: 'https://cdn.example/video.mp4' },
+      info: { playlists: ['https://cdn.example/master.m3u8?vh=abc&token=xyz'] },
+    };
+    const r = pickFilerobotVideoUrl(file);
+    expect(r.kind).toBe('hls');
+    expect(r.src).toBe('https://cdn.example/master.m3u8?vh=abc&token=xyz');
+  });
+
   it('accepts the legacy shape where `playlists[0]` is a bare string', () => {
     const file: FilerobotFileLike = {
       info: { playlists: ['https://cdn.example/legacy.m3u8'] },

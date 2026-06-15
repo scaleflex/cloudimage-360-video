@@ -174,7 +174,12 @@ const BOX_HEADER_BYTES = 16;
 // don't pull a `moov` larger than this into memory — backstops against
 // pathological or hostile inputs.
 const MAX_TOP_LEVEL_BOXES = 32;
-const MAX_MOOV_BYTES = 8 * 1024 * 1024;
+// Cap on how much of `moov` we pull into memory. `st3d` lives in `stsd` (early
+// in `stbl`) and the V1 `uuid` blob sits near the top of `moov`, both ahead of
+// the large `stco`/`stsz`/`stts` sample tables — so a generous-but-bounded cap
+// captures the stereo metadata while still refusing a pathological `moov`. On
+// the rare overflow we fall back to `'mono'` (best-effort, never throws).
+const MAX_MOOV_BYTES = 32 * 1024 * 1024;
 
 /**
  * Locate the `moov` box by walking top-level box headers via range requests

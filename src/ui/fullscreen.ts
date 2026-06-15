@@ -39,6 +39,9 @@ export function createFullscreenController(
   const cleanups = [
     addListener(document, 'fullscreenchange', () => onChange?.(isFs())),
     addListener(document, 'webkitfullscreenchange', () => onChange?.(isFs())),
+    // `isFs()`/`exit()` already read the ms-prefixed API; bind its change event
+    // too so state stays in sync on browsers that only fire the prefixed one.
+    addListener(document, 'MSFullscreenChange', () => onChange?.(isFs())),
   ];
 
   const enter = (): void => {

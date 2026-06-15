@@ -65,6 +65,17 @@ describe('ViewStateManager', () => {
     expect(view.fov).toBe(100);
   });
 
+  it('updateOptions re-clamps the current snapshot when limits tighten', () => {
+    // Regression: only targets were re-clamped, so the displayed lat/fov could
+    // sit out of bounds until damping eased it back.
+    const v = makeViewState();
+    v.setView({ lat: 80, fov: 95 }, true); // snap → current == target
+    expect(v.getView().lat).toBe(80);
+    v.updateOptions({ latMax: 45, fovMax: 60 });
+    expect(v.getView().lat).toBe(45); // current re-clamped, not just target
+    expect(v.getView().fov).toBe(60);
+  });
+
   it('rotateBy accumulates and clamps lat', () => {
     const v = makeViewState();
     v.rotateBy(45, 50);

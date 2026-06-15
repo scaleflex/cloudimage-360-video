@@ -64,7 +64,10 @@ export const DEFAULT_CONFIG: CI360VideoConfig = {
 // ---- data-attribute coercion helpers ----
 
 function toBool(v: string): boolean {
-  return v === 'true' || v === '1' || v === 'yes' || v === '';
+  // Case-insensitive so author variants ('True', 'YES', 'On') aren't misread as
+  // false. Empty string = a valueless boolean attribute (e.g. `data-...-muted`).
+  const s = v.trim().toLowerCase();
+  return s === 'true' || s === '1' || s === 'yes' || s === 'on' || s === '';
 }
 
 function toNumber(v: string): number | undefined {

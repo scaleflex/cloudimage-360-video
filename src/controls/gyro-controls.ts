@@ -99,11 +99,23 @@ export function createGyroControls(view: ViewStateManager): GyroControlsHandle {
     view.rotateBy(dLon, dLat);
   };
 
+  // Rotating the device portrait↔landscape swaps which raw axis carries pitch
+  // (beta↔gamma). The stale baseline would then produce a large one-shot delta,
+  // snapping the view — so drop the baseline and re-seed on the next sample.
+  const onScreenChange = (): void => {
+    prevLon = null;
+    prevLat = null;
+  };
+
   const attach = (): void => {
     window.addEventListener('deviceorientation', onOrientation, true);
+    screen?.orientation?.addEventListener?.('change', onScreenChange);
+    window.addEventListener('orientationchange', onScreenChange);
   };
   const detach = (): void => {
     window.removeEventListener('deviceorientation', onOrientation, true);
+    screen?.orientation?.removeEventListener?.('change', onScreenChange);
+    window.removeEventListener('orientationchange', onScreenChange);
   };
 
   return {

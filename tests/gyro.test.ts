@@ -74,4 +74,27 @@ describe('gyro applies deltas that compose with drag', () => {
     fire(90, 90);
     expect(vsm.getTargetView().lon).toBe(-15);
   });
+
+  it('re-baselines on a screen orientation change so the view does not jump', async () => {
+    // Regression: rotating the device swaps the pitch axis (beta↔gamma); without
+    // dropping the baseline, the next sample applied a large bogus delta.
+    (window as unknown as { DeviceOrientationEvent?: unknown }).DeviceOrientationEvent =
+      function () {} as unknown;
+
+    const vsm = makeVSM();
+    const gyro = createGyroControls(vsm);
+    await gyro.enable();
+
+    fire(10, 90); // baseline
+    fire(20, 90); // delta -10 → lon -10
+    expect(vsm.getTargetView().lon).toBe(-10);
+
+    window.dispatchEvent(new Event('orientationchange')); // device rotated
+    fire(50, 90); // would be a -30 jump without rebaseline — must be a no-op baseline
+    expect(vsm.getTargetView().lon).toBe(-10);
+    fire(60, 90); // now a fresh -10 delta off the new baseline
+    expect(vsm.getTargetView().lon).toBe(-20);
+
+    gyro.destroy();
+  });
 });

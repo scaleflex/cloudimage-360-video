@@ -86,6 +86,37 @@ export function createOrbitControls360(
     );
   };
 
+  /**
+   * (Re)capture the pinch baseline from the first two active pointers. Called
+   * whenever the active-pointer set changes while ≥2 are down, so the zoom ratio
+   * is always measured against the *current* finger pair — adding or removing a
+   * third finger never leaves a stale baseline that snaps the FOV.
+   */
+  const startPinch = (): void => {
+    const pts = [...activePointers.values()];
+    if (pts.length < 2) {
+      pinchStartDist = 0;
+      return;
+    }
+    pinchStartDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+    pinchStartFov = view.getTargetView().fov;
+  };
+
+  /**
+   * Promote the single remaining pointer to the active drag pointer, baselining
+   * its position so there's no jump. Used when a pinch drops back to one finger
+   * — otherwise the remaining finger couldn't pan until lifted and re-touched.
+   */
+  const promoteDrag = (): void => {
+    const [id] = [...activePointers.keys()];
+    const p = id !== undefined ? activePointers.get(id) : undefined;
+    if (!p) return;
+    activePointerId = id;
+    dragging = true;
+    prevX = p.x;
+    prevY = p.y;
+  };
+
   const onPointerDown = (e: PointerEvent): void => {
     if (!opts.enabled || !opts.dragToRotate) return;
     if (isPointerOverUI(e.target)) return;
@@ -101,12 +132,11 @@ export function createOrbitControls360(
       } catch {
         // pointer capture isn't critical — some pointer types refuse it
       }
-    } else if (activePointers.size === 2) {
-      // Pinch start: suspend rotation drag while two fingers are down.
+    } else {
+      // Two-or-more pointers → pinch-zoom. Suspend rotation drag and (re)capture
+      // the baseline so a third finger doesn't freeze or jump the zoom.
       dragging = false;
-      const [a, b] = [...activePointers.values()];
-      pinchStartDist = Math.hypot(b.x - a.x, b.y - a.y);
-      pinchStartFov = view.getTargetView().fov;
+      startPinch();
     }
     markInput();
   };
@@ -118,9 +148,9 @@ export function createOrbitControls360(
     tracked.x = e.clientX;
     tracked.y = e.clientY;
 
-    if (activePointers.size === 2 && pinchStartDist > 0) {
-      const [a, b] = [...activePointers.values()];
-      const dist = Math.hypot(b.x - a.x, b.y - a.y);
+    if (activePointers.size >= 2 && pinchStartDist > 0) {
+      const pts = [...activePointers.values()];
+      const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
       const ratio = dist / pinchStartDist;
       // Spreading fingers (ratio > 1) → zoom in (smaller fov).
       view.setView({ fov: pinchStartFov / ratio });
@@ -155,7 +185,16 @@ export function createOrbitControls360(
         // ignore
       }
     }
-    if (activePointers.size < 2) pinchStartDist = 0;
+    if (activePointers.size >= 2) {
+      // Still ≥2 fingers down — rebaseline the pinch to the remaining pair.
+      startPinch();
+    } else if (activePointers.size === 1) {
+      // Pinch dropped to one finger: resume single-finger drag with it.
+      pinchStartDist = 0;
+      if (opts.enabled && opts.dragToRotate) promoteDrag();
+    } else {
+      pinchStartDist = 0;
+    }
     markInput();
   };
 

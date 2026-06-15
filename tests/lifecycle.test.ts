@@ -114,6 +114,43 @@ describe('CI360Video lifecycle', () => {
     p.destroy();
   });
 
+  it('update() rebuilds the mesh for a runtime projection change', async () => {
+    // Regression: update() never rebuilt the mesh, so projection/segments/lensFov
+    // changes were silently ignored.
+    const container = makeContainer();
+    const p = new CI360Video(container, { src: 'a.mp4' });
+    await flushAsync();
+    const video = container.querySelector<HTMLVideoElement>('video')!;
+    // jsdom never fires loadedmetadata on its own — force the mesh build.
+    Object.defineProperty(video, 'readyState', { value: 1, configurable: true });
+    video.dispatchEvent(new Event('loadedmetadata'));
+
+    const before = p.getThreeObjects()!.mesh;
+    expect(before).not.toBeNull();
+    expect((before!.material as { type: string }).type).toBe('MeshBasicMaterial');
+
+    p.update({ projection: 'fisheye' });
+    const after = p.getThreeObjects()!.mesh;
+    expect(after).not.toBeNull();
+    expect(after).not.toBe(before); // a new mesh was built
+    expect((after!.material as { type: string }).type).toBe('ShaderMaterial');
+    p.destroy();
+  });
+
+  it('update() applies loop and muted to the underlying video at runtime', async () => {
+    const container = makeContainer();
+    const p = new CI360Video(container, { src: 'a.mp4' });
+    await flushAsync();
+    const video = container.querySelector<HTMLVideoElement>('video')!;
+    p.update({ loop: true });
+    expect(video.loop).toBe(true);
+    p.update({ muted: true });
+    expect(video.muted).toBe(true);
+    p.update({ loop: false });
+    expect(video.loop).toBe(false);
+    p.destroy();
+  });
+
   it('config.sources falls back to the first entry when no `default` is set', async () => {
     const container = makeContainer();
     const p = new CI360Video(container, {

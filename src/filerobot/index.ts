@@ -33,7 +33,10 @@ export function pickFilerobotVideoUrl(file: FilerobotFileLike): FilerobotVideoSo
       ? first
       : (first?.playlists?.[0] ?? '');
 
-  if (playlistSrc.endsWith('.m3u8')) {
+  // Match `.m3u8` on the URL *path*, not the raw string — signed/transform
+  // playlist URLs carry a query string (`master.m3u8?token=…`), which a plain
+  // `endsWith('.m3u8')` would miss, silently dropping adaptive streaming.
+  if (pathnameOf(playlistSrc).endsWith('.m3u8')) {
     return { src: playlistSrc, kind: 'hls' };
   }
   const cdn = file.url?.cdn ?? file.url?.permalink ?? '';
@@ -54,14 +57,18 @@ export function pickFilerobotVideoUrl(file: FilerobotFileLike): FilerobotVideoSo
  * Query strings are stripped first so `?func=proxy` never confuses the match.
  * Returns `null` when no resolution token is present.
  */
-function parseResolutionFromUrl(url: string): { height: number; label: string } | null {
-  let pathname = url;
+/** The path portion of a URL, with any query string stripped. Falls back to a
+ *  manual `?`-split for relative URLs that `new URL()` can't parse. */
+function pathnameOf(url: string): string {
   try {
-    pathname = new URL(url).pathname;
+    return new URL(url).pathname;
   } catch {
-    /* relative URL (no origin) — fall back to matching the raw string */
-    pathname = url.split('?')[0];
+    return url.split('?')[0];
   }
+}
+
+function parseResolutionFromUrl(url: string): { height: number; label: string } | null {
+  const pathname = pathnameOf(url);
   const filename = pathname.split('/').pop() ?? '';
 
   const np = filename.match(/(?:^|_)(\d+)p[_.]/);

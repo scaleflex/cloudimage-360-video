@@ -112,6 +112,10 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
   private idleListenerCleanups: Array<() => void> = [];
   /** Index into `config.sources` of the currently active variant, or `-1`. */
   private currentSourceIndex = -1;
+  /** Removes the pending one-shot `loadedmetadata` listener from a quality
+   *  source-swap. Replaced on each swap and run on destroy so a teardown
+   *  mid-swap can't later fire `currentTime`/`play()` on a detached element. */
+  private pendingMetaCleanup: (() => void) | null = null;
 
   /** Layout `stereo: 'auto'` resolved to from the source's `st3d` metadata.
    *  Starts at `'mono'` (the safe default) and is corrected once detection
@@ -439,7 +443,7 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
               lat: this.config.initialLat!,
               fov: this.config.fov!,
             },
-            false, // false = animate
+            true, // animate smoothly back to the initial view (setView: animate=true)
           ),
       });
 
@@ -556,8 +560,12 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
     const video = this.adapter.getVideoElement();
     const currentTime = video.currentTime;
     const wasPaused = video.paused;
+    // Drop any still-pending listener from a previous rapid swap so they don't
+    // stack (each restores currentTime + play state).
+    this.pendingMetaCleanup?.();
     const onMeta = (): void => {
       video.removeEventListener('loadedmetadata', onMeta);
+      this.pendingMetaCleanup = null;
       try {
         video.currentTime = currentTime;
       } catch {
@@ -567,6 +575,7 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
         void video.play().catch(() => {});
       }
     };
+    this.pendingMetaCleanup = () => video.removeEventListener('loadedmetadata', onMeta);
     video.addEventListener('loadedmetadata', onMeta);
     video.src = next.src;
     video.load();
@@ -792,6 +801,32 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
     return (s as StereoLayout | undefined) ?? 'mono';
   }
 
+  /** Rebuild the projection mesh in place from the current config, reusing the
+   *  live video texture. Lets `update()` apply a runtime change to `projection`,
+   *  `sphereSegments`, or `lensFovDeg` (the mesh is built once in `init`). The
+   *  video texture is kept out of disposal — it outlives the mesh. */
+  private rebuildProjectionMesh(): void {
+    if (!this.scene || !this.videoTexture || !this.mesh) return;
+    this.scene.remove(this.mesh);
+    disposeObject3D(this.mesh, new Set([this.videoTexture.texture]));
+    this.mesh = null;
+
+    const projection = getProjection(this.config.projection ?? 'equirectangular');
+    const geometry = projection.createGeometry({
+      segments: this.config.sphereSegments!,
+      radius: SPHERE_RADIUS,
+    });
+    const layout = this.effectiveStereo();
+    const material = projection.createMaterial(this.videoTexture.texture, {
+      eye: layout === 'mono' ? 'mono' : 'left',
+      layout,
+      lensFovDeg: this.config.lensFovDeg,
+    });
+    this.mesh = new Mesh(geometry, material);
+    this.scene.add(this.mesh);
+    this.applyStereoToTexture();
+  }
+
   /** Re-crop the live video texture to the effective stereo layout. Only
    *  equirectangular honours stereo (fisheye shaders ignore it), so this is a
    *  no-op for other projections. Cheap enough to call on any layout change. */
@@ -819,6 +854,10 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
 
   update(config: Partial<CI360VideoConfig>): void {
     const prevStereo = this.config.stereo;
+    const prevProjection = this.config.projection;
+    const prevSegments = this.config.sphereSegments;
+    const prevLensFov = this.config.lensFovDeg;
+    const prevGyro = this.config.gyroscope;
     Object.assign(this.config, config);
     // Stereo can change at runtime. An explicit layout applies immediately; a
     // switch to 'auto' re-probes the current source.
@@ -829,6 +868,34 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
         this.startStereoAutoDetect(this.currentSrc());
       } else {
         this.applyStereoToTexture();
+      }
+    }
+
+    // Projection / geometry / lens FOV need a mesh rebuild (built once in init).
+    if (
+      (config.projection !== undefined && config.projection !== prevProjection) ||
+      (config.sphereSegments !== undefined && config.sphereSegments !== prevSegments) ||
+      (config.lensFovDeg !== undefined && config.lensFovDeg !== prevLensFov)
+    ) {
+      this.rebuildProjectionMesh();
+    }
+
+    // Playback flags that map straight onto the <video> element.
+    if (config.loop !== undefined) {
+      const v = this.adapter?.getVideoElement();
+      if (v) v.loop = config.loop;
+      this.toolbar?.setLoop(config.loop);
+    }
+    if (config.muted !== undefined) this.setMuted(config.muted);
+
+    // Gyroscope can be toggled at runtime. Create the handle lazily the first
+    // time it's enabled; enabling is best-effort (iOS needs a user gesture).
+    if (config.gyroscope !== undefined && config.gyroscope !== prevGyro) {
+      if (config.gyroscope) {
+        if (!this.gyro) this.gyro = createGyroControls(this.viewState);
+        void this.gyro.enable();
+      } else {
+        this.gyro?.disable();
       }
     }
     this.controls?.setOptions({
@@ -862,6 +929,8 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
 
     this.stereoAbort?.abort();
     this.stereoAbort = null;
+    this.pendingMetaCleanup?.();
+    this.pendingMetaCleanup = null;
     this.loop?.stop();
     this.loop = null;
     this.controls?.destroy();

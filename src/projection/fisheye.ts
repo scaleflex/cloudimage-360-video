@@ -57,19 +57,23 @@ uniform float seamBlendDeg;
 
 void main() {
   vec3 dir = normalize(vDir);
-  float halfFov = (lensFovDeg * 0.5) * (PI / 180.0);
+  // max(...,1.0) guards against lensFovDeg==0 → halfFov==0 → division by zero.
+  float halfFov = (max(lensFovDeg, 1.0) * 0.5) * (PI / 180.0);
 
   // Front lens looks along +Z. Polar angle from +Z and azimuth around it.
+  // Clamp r to the lens circle: in the seam blend band a direction can have
+  // phi > halfFov (r > 1), which without the clamp samples past 0.5 into the
+  // *other* lens's half of the frame, producing a ghosted ring at the equator.
   float phi_f = acos(clamp(dir.z, -1.0, 1.0));
   float psi_f = atan(dir.y, dir.x);
-  float r_f = phi_f / halfFov;
+  float r_f = min(phi_f / halfFov, 1.0);
   vec2 uv_f = vec2(0.25 + 0.25 * r_f * cos(psi_f),
                    0.5  + 0.5  * r_f * sin(psi_f));
 
   // Back lens looks along -Z. Physical 180° rotation means we mirror x.
   float phi_b = acos(clamp(-dir.z, -1.0, 1.0));
   float psi_b = atan(dir.y, -dir.x);
-  float r_b = phi_b / halfFov;
+  float r_b = min(phi_b / halfFov, 1.0);
   vec2 uv_b = vec2(0.75 + 0.25 * r_b * cos(psi_b),
                    0.5  + 0.5  * r_b * sin(psi_b));
 
@@ -94,13 +98,17 @@ uniform float lensFovDeg;
 
 void main() {
   vec3 dir = normalize(vDir);
-  vec3 color = vec3(0.0); // back hemisphere not covered by single lens — black
+  vec3 color = vec3(0.0); // outside the lens circle — black
 
-  if (dir.z >= 0.0) {
-    float halfFov = (lensFovDeg * 0.5) * (PI / 180.0);
-    float phi = acos(clamp(dir.z, -1.0, 1.0));
-    float psi = atan(dir.y, dir.x);
-    float r = phi / halfFov;
+  // max(...,1.0) guards against lensFovDeg==0 → halfFov==0 → division by zero.
+  float halfFov = (max(lensFovDeg, 1.0) * 0.5) * (PI / 180.0);
+  float phi = acos(clamp(dir.z, -1.0, 1.0));
+  float psi = atan(dir.y, dir.x);
+  float r = phi / halfFov;
+  // Gate on the circle radius (r <= 1), not the hemisphere (dir.z >= 0): a
+  // narrow lens (<180°) stops short of the equator instead of smearing edge
+  // pixels in a ring; a wide lens (>180°) keeps the coverage it has past dir.z=0.
+  if (r <= 1.0) {
     // Single fisheye fills the whole frame as one circle centred at (0.5, 0.5).
     vec2 uv = vec2(0.5 + 0.5 * r * cos(psi),
                    0.5 + 0.5 * r * sin(psi));

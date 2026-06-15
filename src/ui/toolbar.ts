@@ -348,7 +348,10 @@ export class Toolbar {
     this.volumeBtn.setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
   }
   setVolume(v: number): void {
-    this.volumeSlider.value = String(v);
+    // Clamp + finite-guard so a stray NaN/out-of-range value can't desync the
+    // range thumb from the real volume.
+    const safe = Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
+    this.volumeSlider.value = String(safe);
   }
   setTime(currentTime: number, duration: number): void {
     this.lastTime = currentTime;

@@ -228,6 +228,19 @@ describe('streaming adapter level-event wiring (cached-manifest race)', () => {
     a.destroy();
   });
 
+  it('DashAdapter.getCurrentQuality reports the manual pick, auto otherwise', async () => {
+    // Regression: it read dash.js settings, which lag right after a pick and
+    // momentarily reported 'auto' for a level the user just selected.
+    const a = new DashAdapter({ src: 'x.mpd' });
+    await flush();
+    expect(a.getCurrentQuality()).toBe('auto');
+    a.setQuality(2);
+    expect(a.getCurrentQuality()).toBe(2);
+    a.setQuality('auto');
+    expect(a.getCurrentQuality()).toBe('auto');
+    a.destroy();
+  });
+
   it('DashAdapter subscribes to streamInitialized BEFORE initialize', async () => {
     new DashAdapter({ src: 'x.mpd' });
     await flush();
