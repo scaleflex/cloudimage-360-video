@@ -33,6 +33,7 @@
   "scripts": {
     "dev": "vite --config config/vite.demo.config.ts",
     "dev:react": "vite --config config/vite.react-demo.config.ts",
+    "sandbox": "vite --config sandbox/vite.config.ts",
     "build": "npm run build:bundle && npm run build:react && npm run build:filerobot",
     "build:bundle": "vite build --config config/vite.config.ts",
     "build:react": "vite build --config config/vite.react.config.ts",
