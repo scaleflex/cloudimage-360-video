@@ -78,19 +78,19 @@ npm install dashjs               # only if you'll stream .mpd (DASH)
 npm install react react-dom      # only for the React wrapper
 ```
 
-Or via CDN (UMD, attaches `window.CI360Video`):
+Or via CDN — a single **self-contained** `<script>` (three is bundled in, no
+extra dependency needed for MP4/WebM):
 
 ```html
-<script src="https://unpkg.com/three"></script>
 <!-- Scaleflex CDN (version-pinned): -->
-<script src="https://cdn.scaleflex.com/360-video/1.3.1/360-video.min.js"></script>
+<script src="https://cdn.scaleflex.com/360-video/1.3.2/360-video.min.js"></script>
 <!-- or unpkg (always latest): -->
 <script src="https://unpkg.com/@scaleflex/360-video"></script>
 ```
 
-The UMD build expects its peers as globals: `THREE` is required; for HLS/DASH
-playback also load `hls.js` (global `Hls`) and/or `dashjs` (global `dashjs`)
-*before* the player script. Plain MP4/WebM needs only `THREE`.
+For **HLS/DASH streaming** also load the optional peer as a global *before* the
+player script — `hls.js` (global `Hls`) and/or `dashjs` (global `dashjs`). Plain
+MP4/WebM needs nothing but the script above.
 
 The script attaches a **namespace** object at `window.CI360Video`; the player
 class is `window.CI360Video.CI360Video`. Destructure it once so the rest of your

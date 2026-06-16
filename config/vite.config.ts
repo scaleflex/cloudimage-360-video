@@ -52,19 +52,9 @@ export default defineConfig({
           inlineDynamicImports: true,
           exports: 'named',
         },
-        {
-          format: 'umd',
-          entryFileNames: '360-video.min.js',
-          inlineDynamicImports: true,
-          name: 'CI360Video',
-          exports: 'named',
-          globals: (id: string) => {
-            if (id === 'three' || id.startsWith('three/')) return 'THREE';
-            if (id === 'hls.js') return 'Hls';
-            if (id === 'dashjs') return 'dashjs';
-            return id;
-          },
-        },
+        // The standalone UMD bundle for <script> / CDN / unpkg consumption is
+        // built separately by `vite.cdn.config.ts` with three bundled in, so it
+        // works without a global THREE (modern three ships no UMD global build).
       ],
     },
     sourcemap: true,

@@ -31,7 +31,7 @@ run({
     },
   },
   updateFiles: ["README.md"],
-  // CDN-only for this run — publish to npm / git tag handled separately.
-  npmPublish: false,
-  gitTagAndPush: false,
+  // Full release: CDN upload + npm publish + git commit/tag/push.
+  npmPublish: true,
+  gitTagAndPush: true,
 });
