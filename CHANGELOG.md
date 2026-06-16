@@ -17,6 +17,7 @@ All notable changes to `@scaleflex/360-video`.
 
 ### Fixed
 
+- **Empty projection registry in production builds** — `"sideEffects": false` let the bundler tree-shake the bare side-effect imports that register the projections, so the minified bundle threw `unknown projection "equirectangular"` and rendered a blank player (first seen on the GitHub Pages demo). `sideEffects` is now an allowlist that preserves `src/projection/{equirectangular,fisheye}`, plus a post-build `scripts/verify-bundle.mjs` guard that fails the build if any projection is missing from the emitted bundles.
 - React wrapper now forwards runtime `stereo` prop changes; `StereoOption` re-exported from `/react`.
 - Quality/source swaps re-probe stereo in `'auto'` mode.
 

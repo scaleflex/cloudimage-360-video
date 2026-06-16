@@ -33,12 +33,15 @@
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "**/projection/equirectangular.*",
+    "**/projection/fisheye.*"
+  ],
   "scripts": {
     "dev": "vite --config config/vite.demo.config.ts",
     "dev:react": "vite --config config/vite.react-demo.config.ts",
     "sandbox": "vite --config sandbox/vite.config.ts",
-    "build": "npm run build:bundle && npm run build:react && npm run build:filerobot",
+    "build": "npm run build:bundle && npm run build:react && npm run build:filerobot && node scripts/verify-bundle.mjs",
     "build:bundle": "vite build --config config/vite.config.ts",
     "build:react": "vite build --config config/vite.react.config.ts",
     "build:filerobot": "vite build --config config/vite.filerobot.config.ts",
