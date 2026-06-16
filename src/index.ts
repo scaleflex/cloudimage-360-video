@@ -27,4 +27,7 @@ export type {
 export type { Projection } from './projection/projection';
 export type { Eye } from './texture/eye-mapping';
 
-export const VERSION = '1.3.0';
+// Sourced from package.json so it never drifts from the published version.
+// Rollup inlines only the `version` field (named import → dead-code-eliminated).
+import { version as VERSION } from '../package.json';
+export { VERSION };
