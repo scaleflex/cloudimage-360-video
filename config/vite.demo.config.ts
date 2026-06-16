@@ -1,7 +1,11 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default defineConfig({
+// `base` must match the GitHub Pages sub-path (repo name) for production builds
+// so bundled asset URLs resolve under https://scaleflex.github.io/360-video-player/.
+// Local dev stays at `/` for a clean `npm run dev`.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/360-video-player/' : '/',
   root: resolve(__dirname, '../demo'),
   build: {
     outDir: resolve(__dirname, '../dist-demo'),
@@ -18,4 +22,4 @@ export default defineConfig({
       '@': resolve(__dirname, '../src'),
     },
   },
-});
+}));
