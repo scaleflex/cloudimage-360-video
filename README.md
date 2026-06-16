@@ -82,6 +82,9 @@ Or via CDN (UMD, attaches `window.CI360Video`):
 
 ```html
 <script src="https://unpkg.com/three"></script>
+<!-- Scaleflex CDN (version-pinned): -->
+<script src="https://cdn.scaleflex.com/360-video/1.3.1/360-video.min.js"></script>
+<!-- or unpkg (always latest): -->
 <script src="https://unpkg.com/@scaleflex/360-video"></script>
 ```
 
