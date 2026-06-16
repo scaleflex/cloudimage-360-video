@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `@cloudimage/360-video`.
+All notable changes to `@scaleflex/360-video`.
 
 ## [Unreleased]
 
@@ -28,7 +28,7 @@ All notable changes to `@cloudimage/360-video`.
 
 ### Added
 
-- **Scaleflex Filerobot integration** under a new subpath export `@cloudimage/360-video/filerobot`.
+- **Scaleflex Filerobot integration** under a new subpath export `@scaleflex/360-video/filerobot`.
   - `fromFilerobotFile(file)` returns a spreadable `{ src, poster? }` object: HLS playlist if transcoding produced one, otherwise the original CDN URL. Spread directly into the `CI360Video` constructor.
   - `pickFilerobotVideoUrl(file)` lower-level helper returning `{ src, kind: 'hls' | 'mp4' | 'unknown' }` for callers that need branching.
   - Uses **structural typing** — no peer dependency on `@filerobot/core`. Any object matching the documented `FilerobotFileLike` shape is accepted.

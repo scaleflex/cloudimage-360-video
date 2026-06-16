@@ -1,8 +1,8 @@
 /**
- * Public entry point for `@cloudimage/360-video`.
+ * Public entry point for `@scaleflex/360-video`.
  *
  * UMD bundles expose the default export as the global `CI360Video`, so both
- * `import CI360Video from '@cloudimage/360-video'` and a `<script>` tag with
+ * `import CI360Video from '@scaleflex/360-video'` and a `<script>` tag with
  * `new CI360Video(el, …)` work without further setup.
  */
 

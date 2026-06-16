@@ -1,5 +1,5 @@
 {
-  "name": "@cloudimage/360-video",
+  "name": "@scaleflex/360-video",
   "version": "1.3.0",
   "description": "Interactive 360° (equirectangular) video player on Three.js with custom controls, gyroscope, fullscreen, accessibility and React wrapper",
   "license": "MIT",
@@ -27,8 +27,12 @@
     "./css": "./dist/style.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.map"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "scripts": {
     "dev": "vite --config config/vite.demo.config.ts",

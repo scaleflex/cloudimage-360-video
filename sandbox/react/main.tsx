@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { CI360VideoViewer } from '@cloudimage/360-video/react';
-import type { CI360VideoViewerRef, ViewState } from '@cloudimage/360-video/react';
+import { CI360VideoViewer } from '@scaleflex/360-video/react';
+import type { CI360VideoViewerRef, ViewState } from '@scaleflex/360-video/react';
 
 /** Verified live, CORS-enabled 360° sources (same set the landing demo uses). */
 const SOURCES = [

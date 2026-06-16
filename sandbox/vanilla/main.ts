@@ -1,7 +1,7 @@
 // Importing the package gives the player class; the core injects its CSS at
 // runtime, so no separate stylesheet import is needed.
-import CI360Video from '@cloudimage/360-video';
-import type { CI360VideoInstance } from '@cloudimage/360-video';
+import CI360Video from '@scaleflex/360-video';
+import type { CI360VideoInstance } from '@scaleflex/360-video';
 
 /** Verified live, CORS-enabled 360° sources (same set the landing demo uses). */
 const SOURCES = [

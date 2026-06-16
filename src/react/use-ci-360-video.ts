@@ -28,9 +28,9 @@ export function useCI360Video(options: UseCI360VideoOptions): UseCI360VideoRetur
 
     // Import the core from the package specifier (not a relative path) so the
     // React bundle stays a thin wrapper: the build externalizes
-    // `@cloudimage/360-video`, and at runtime Node's package self-reference
+    // `@scaleflex/360-video`, and at runtime Node's package self-reference
     // resolves it to the single installed core — no duplicate copy shipped.
-    import('@cloudimage/360-video').then(({ CI360Video }) => {
+    import('@scaleflex/360-video').then(({ CI360Video }) => {
       if (destroyed || !containerRef.current) return;
       const init = (): void => {
         if (destroyed || !containerRef.current) return;
