@@ -49,6 +49,8 @@ export const DEFAULT_CONFIG: CI360VideoConfig = {
   // UI
   theme: 'dark',
   fullscreenButton: true,
+  speedButton: true,
+  qualityButton: true,
   vrButton: false, // extension point — disabled by default
 
   // perf

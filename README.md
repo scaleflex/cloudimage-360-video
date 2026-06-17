@@ -398,7 +398,7 @@ All colors and metrics are exposed as CSS custom properties prefixed with `--ci-
 
 ### Scaleflex Filerobot
 
-If you store your videos in [Filerobot](https://www.scaleflex.com/digital-asset-management/filerobot/) (Scaleflex's DAM) and have **Adaptive Streaming → HLS** enabled in the project's storage settings, you can wire the player in one line:
+If you store your videos in [Filerobot](https://www.scaleflex.com/digital-asset-management) (Scaleflex's DAM) and have **Adaptive Streaming → HLS** enabled in the project's storage settings, you can wire the player in one line:
 
 ```ts
 import { CI360Video } from '@cloudimage/360-video';
