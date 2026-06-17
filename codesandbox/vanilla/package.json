@@ -1,0 +1,15 @@
+{
+  "name": "cloudimage-360-video-vanilla-example",
+  "version": "1.0.0",
+  "description": "@cloudimage/360-video - Vanilla JavaScript Example",
+  "main": "index.html",
+  "scripts": {
+    "dev": "serve . -l 5175",
+    "start": "serve . -l 5175"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "keywords": ["360", "video", "panorama", "cloudimage", "web-component"],
+  "license": "MIT"
+}

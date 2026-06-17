@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@cloudimage/360-video - Vanilla Example</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #f5f5f7;
+        color: #111;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      ci-360-video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin: 16px 0;
+      }
+      button {
+        padding: 8px 16px;
+        border: 0;
+        border-radius: 8px;
+        background: #1f6feb;
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #e1e4e8;
+        color: #111;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>@cloudimage/360-video — Vanilla example</h1>
+      <p>Drag to look around, scroll to zoom, use the toolbar to play / mute / fullscreen.</p>
+
+      <ci-360-video
+        id="player"
+        src="https://scaleflex.filerobot.com/plugins/cloudimage/player-360/jfk_720p_400K_compressed.mp4?func=proxy"
+        autoplay
+        muted
+        loop
+        theme="light"
+      ></ci-360-video>
+
+      <div class="actions">
+        <button id="play">Play</button>
+        <button id="pause" class="secondary">Pause</button>
+        <button id="reset" class="secondary">Reset view</button>
+      </div>
+    </main>
+
+    <!-- Self-contained bundle (three included) — registers <ci-360-video> on load -->
+    <script src="https://cdn.cloudimage.io/360-video/1.4.0/360-video.min.js"></script>
+    <script type="module">
+      const player = document.getElementById('player');
+      document.getElementById('play').addEventListener('click', () => player.play());
+      document.getElementById('pause').addEventListener('click', () => player.pause());
+      document
+        .getElementById('reset')
+        .addEventListener('click', () => player.setView({ lon: 0, lat: 0, fov: 75 }, true));
+
+      player.addEventListener('ci-360-video-ready', () => console.log('ready'));
+    </script>
+  </body>
+</html>
