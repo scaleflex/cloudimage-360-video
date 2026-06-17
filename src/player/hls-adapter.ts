@@ -139,7 +139,11 @@ export class HLSAdapter extends HTML5Adapter {
     // returns the level currently *playing* (a real index ≥0) even during ABR,
     // which would wrongly flip the toolbar off "Auto".
     const manual: number = this.hls.manualLevel ?? -1;
-    return manual === -1 ? 'auto' : manual;
+    // Guard a stale index: a live/variant manifest reload can shrink the level
+    // list while `manualLevel` still points past the new end — fall back to auto
+    // rather than highlight a non-existent dropdown item.
+    const count: number = this.hls.levels?.length ?? 0;
+    return manual === -1 || manual >= count ? 'auto' : manual;
   }
   override setQuality(id: QualityId): void {
     if (!this.hls) return;

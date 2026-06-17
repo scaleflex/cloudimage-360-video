@@ -61,6 +61,10 @@ export function useCI360Video(options: UseCI360VideoOptions): UseCI360VideoRetur
       // Defer if the container isn't attached yet (e.g. a Dialog portal).
       if (containerRef.current.isConnected) init();
       else requestAnimationFrame(init);
+    }).catch((err) => {
+      // Surface a failed `/define` import (misconfigured bundler / missing
+      // self-reference) instead of silently never becoming ready.
+      if (!destroyed) console.error('CI360Video: failed to load @cloudimage/360-video/define', err);
     });
 
     return () => {
