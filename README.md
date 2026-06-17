@@ -29,10 +29,10 @@
 </p>
 
 <p align="center">
-  <a href="https://scaleflex.github.io/360-video-player/">View Demo</a> ·
-  <a href="https://stackblitz.com/github/scaleflex/360-video-player/tree/master/codesandbox/react">React Sandbox</a> ·
-  <a href="https://stackblitz.com/github/scaleflex/360-video-player/tree/master/codesandbox/vanilla">Vanilla Sandbox</a> ·
-  <a href="https://github.com/scaleflex/360-video-player/issues">Report Bug</a>
+  <a href="https://scaleflex.github.io/cloudimage-360-video/">View Demo</a> ·
+  <a href="https://stackblitz.com/github/scaleflex/cloudimage-360-video/tree/master/codesandbox/react">React Sandbox</a> ·
+  <a href="https://stackblitz.com/github/scaleflex/cloudimage-360-video/tree/master/codesandbox/vanilla">Vanilla Sandbox</a> ·
+  <a href="https://github.com/scaleflex/cloudimage-360-video/issues">Report Bug</a>
 </p>
 
 ## Table of Contents

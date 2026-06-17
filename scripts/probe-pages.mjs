@@ -7,7 +7,7 @@ import http from 'node:http';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const PORT = 9224;
-const URL = process.argv[2] || 'https://scaleflex.github.io/360-video-player/';
+const URL = process.argv[2] || 'https://scaleflex.github.io/cloudimage-360-video/';
 
 const child = spawn(CHROME, [
   '--headless=new',

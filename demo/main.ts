@@ -32,7 +32,7 @@ const COMP_480 = 'https://scaleflex.filerobot.com/.internal/videos/compressed/ed
 const LAKE_HLS = 'https://scaleflex.filerobot.com/yeswy_Enhanced_Test_Lake_Video_w_Music_auto/hls/video.m3u8';
 const STEREO_TB = 'https://scaleflex.cloudimg.io/v7/plugins/cloudimage/player-360/congo.mp4?vh=4590b0&func=proxy'; // real top-bottom stereo (Spherical V2 st3d=top-bottom)
 
-const REPO_URL = 'https://github.com/scaleflex/360-video-player';
+const REPO_URL = 'https://github.com/scaleflex/cloudimage-360-video';
 const NPM_URL = 'https://www.npmjs.com/package/@cloudimage/360-video';
 
 /** Switchable sources for the landing live demo. Short, plain labels. */

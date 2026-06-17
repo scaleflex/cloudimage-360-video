@@ -126,10 +126,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/scaleflex/360-video-player.git"
+    "url": "https://github.com/scaleflex/cloudimage-360-video.git"
   },
   "bugs": {
-    "url": "https://github.com/scaleflex/360-video-player/issues"
+    "url": "https://github.com/scaleflex/cloudimage-360-video/issues"
   },
-  "homepage": "https://github.com/scaleflex/360-video-player#readme"
+  "homepage": "https://github.com/scaleflex/cloudimage-360-video#readme"
 }
