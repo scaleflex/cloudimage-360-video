@@ -7,6 +7,10 @@
     <style>
       html, body { margin: 0; background: #0d0d10; }
     </style>
+    <!-- hls.js (global Hls) — needed for the 4K HLS stream -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+    <!-- Self-contained player bundle (three included) — registers <ci-360-video> -->
+    <script src="https://cdn.cloudimage.io/360-video/1.4.1/360-video.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
