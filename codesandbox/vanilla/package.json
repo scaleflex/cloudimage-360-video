@@ -4,11 +4,7 @@
   "description": "@cloudimage/360-video - Vanilla JavaScript Example",
   "main": "index.html",
   "scripts": {
-    "dev": "serve . -l 5175",
-    "start": "serve . -l 5175"
-  },
-  "devDependencies": {
-    "serve": "^14.2.0"
+    "start": "npx serve . -l 5175"
   },
   "keywords": ["360", "video", "panorama", "cloudimage", "web-component"],
   "license": "MIT"

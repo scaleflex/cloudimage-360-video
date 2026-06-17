@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@cloudimage/360-video": "^1.4.0",
+    "@cloudimage/360-video": "1.4.0",
     "three": "^0.170.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
