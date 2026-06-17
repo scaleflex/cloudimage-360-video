@@ -30,7 +30,7 @@ run({
       },
     },
   },
-  updateFiles: ["README.md"],
+  updateFiles: ["README.md", "codesandbox/vanilla/index.html"],
   // Full release: CDN upload + npm publish + git commit/tag/push.
   npmPublish: true,
   gitTagAndPush: true,

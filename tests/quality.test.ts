@@ -114,4 +114,34 @@ describe('quality API — HLS adapter mapping', () => {
     expect(a.getCurrentQuality()).toBe('auto');
     a.destroy();
   });
+
+  // Regression: the UMD/CDN bundle externalises hls.js to `window.Hls`, but the
+  // bundled dynamic `import('hls.js')` can't be resolved by the browser there —
+  // it threw, so the adapter silently fell back to native HLS, which hides the
+  // rendition list (quality menu stuck on a single disabled level). The adapter
+  // must prefer a global `Hls` and never reach the dynamic import.
+  it('uses a global Hls (CDN/UMD) instead of the dynamic import', async () => {
+    class HlsStub {
+      static isSupported(): boolean { return true; }
+      levels = [{ height: 1080, bitrate: 5_000_000 }, { height: 720, bitrate: 2_000_000 }];
+      manualLevel = -1;
+      currentLevel = -1;
+      on(): void {}
+      loadSource(): void {}
+      attachMedia(): void {}
+      destroy(): void {}
+    }
+    (globalThis as any).Hls = HlsStub;
+    try {
+      const a = new HLSAdapter({ src: 'a.m3u8' });
+      await new Promise((r) => setTimeout(r, 0)); // let initHLS resolve
+      // It picked the global instance — not native fallback (which leaves hls null).
+      expect((a as any).hls).toBeInstanceOf(HlsStub);
+      // …so the rendition list is exposed and the quality menu can switch.
+      expect(a.getAvailableQualities()).toHaveLength(2);
+      a.destroy();
+    } finally {
+      delete (globalThis as any).Hls;
+    }
+  });
 });

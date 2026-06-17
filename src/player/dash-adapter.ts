@@ -35,11 +35,17 @@ export class DashAdapter extends HTML5Adapter {
     const video = this.getVideoElement();
 
     try {
-      // @ts-ignore -- optional peer dependency, type shim in src/vite-env.d.ts
-      const mod = await import('dashjs');
+      // Prefer a global `dashjs` (the UMD/CDN build externalises it to
+      // `window.dashjs`; the bundled dynamic `import('dashjs')` can't be resolved
+      // by the browser there). Bundler/npm consumers fall back to the peer dep.
+      let dashjs: any = (globalThis as any).dashjs;
+      if (!dashjs) {
+        // @ts-ignore -- optional peer dependency, type shim in src/vite-env.d.ts
+        const mod = await import('dashjs');
+        dashjs = (mod as any).default ?? mod;
+      }
       // Destroyed while the import was in flight — bail before attaching.
       if (this.isDestroyed) return;
-      const dashjs = (mod as any).default ?? mod;
       this.dashPlayer = dashjs.MediaPlayer().create();
 
       // Wire quality events BEFORE initialize() for the same reason as the HLS

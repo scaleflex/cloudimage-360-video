@@ -44,15 +44,22 @@ export class HLSAdapter extends HTML5Adapter {
     };
 
     try {
-      // hls.js is declared as an OPTIONAL peerDependency. The type shim in
-      // src/vite-env.d.ts is honoured by `tsc --noEmit` but vite-plugin-dts
-      // restricts its file scope and re-reports the missing module — silence it.
-      // @ts-ignore -- optional peer dependency, type shim in src/vite-env.d.ts
-      const mod = await import('hls.js');
+      // Resolve hls.js. Prefer a global `Hls` (the UMD/CDN build externalises
+      // hls.js to `window.Hls`; the bundled dynamic `import('hls.js')` can't be
+      // resolved by the browser there and would throw). Bundler/npm consumers
+      // have no global, so fall back to the dynamic import of the peer dep.
+      let Hls: any = (globalThis as any).Hls;
+      if (!Hls) {
+        // hls.js is an OPTIONAL peerDependency. The type shim in
+        // src/vite-env.d.ts is honoured by `tsc --noEmit` but vite-plugin-dts
+        // restricts its file scope and re-reports the missing module — silence it.
+        // @ts-ignore -- optional peer dependency, type shim in src/vite-env.d.ts
+        const mod = await import('hls.js');
+        Hls = (mod as any).default ?? mod;
+      }
       // Destroyed while the import was in flight — bail before creating an
       // instance that nothing would ever tear down.
       if (this.isDestroyed) return;
-      const Hls = (mod as any).default ?? mod;
 
       // Prefer hls.js whenever it's supported (every desktop browser with MSE).
       // It's the ONLY path that exposes the rendition list, manual quality

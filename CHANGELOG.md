@@ -4,6 +4,10 @@ All notable changes to `@cloudimage/360-video`.
 
 ## [Unreleased]
 
+### Fixed
+
+- **HLS / DASH quality menu broken in the CDN / UMD bundle.** The standalone `360-video.min.js` externalises `hls.js` / `dashjs` to the `Hls` / `dashjs` globals, but the adapters' bundled `await import('hls.js')` couldn't be resolved by the browser there — it threw, so playback silently fell back to **native HLS**, which hides the rendition list. The quality pill ended up stuck on a single, disabled level (e.g. `144p`) even while ABR was actually streaming 4K. The adapters now prefer a global `Hls` / `dashjs` when present (CDN path) and only dynamic-import the peer dependency otherwise (bundler/npm path). npm consumers were unaffected.
+
 ### Added
 
 - **`<ci-360-video>` Web Component** — the player now ships as a framework-agnostic custom element, matching the Cloudimage plugin family. New side-effect entry `@cloudimage/360-video/define` registers it (the CDN `<script>` auto-registers too). Bare kebab attributes map to config via the shared attribute table; complex config (`sources`, `on*`) and the imperative API are JS properties/methods; engine events surface as composed, bubbling `ci-360-video-*` CustomEvents. Renders inside an **open Shadow DOM** with encapsulated styles — theme via `--ci-360-video-*` set on the host element. The React wrapper now drives this element internally (same public API). New `src/web-component/ci-360-video.ts`, `src/define.ts`, `config/vite.define.config.ts`; `injectStyles` is now Shadow-DOM-aware (`src/utils/dom.ts`). The `CI360Video` class and `data-*` `autoInit` remain exported for back-compat.
