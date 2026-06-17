@@ -30,8 +30,8 @@
 
 <p align="center">
   <a href="https://scaleflex.github.io/cloudimage-360-video/">View Demo</a> ·
-  <a href="https://stackblitz.com/github/scaleflex/cloudimage-360-video/tree/main/codesandbox/react">React Sandbox</a> ·
-  <a href="https://stackblitz.com/github/scaleflex/cloudimage-360-video/tree/main/codesandbox/vanilla">Vanilla Sandbox</a> ·
+  <a href="https://codesandbox.io/p/sandbox/github/scaleflex/cloudimage-360-video/tree/main/codesandbox/react">React CodeSandbox</a> ·
+  <a href="https://codesandbox.io/p/sandbox/github/scaleflex/cloudimage-360-video/tree/main/codesandbox/vanilla">Vanilla CodeSandbox</a> ·
   <a href="https://github.com/scaleflex/cloudimage-360-video/issues">Report Bug</a>
 </p>
 
