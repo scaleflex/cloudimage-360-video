@@ -15,7 +15,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@scaleflex/360-video": ["src/index.ts"]
+      "@cloudimage/360-video": ["src/index.ts"],
+      "@cloudimage/360-video/define": ["src/define.ts"]
     },
     "outDir": "dist",
     "declarationDir": "dist",

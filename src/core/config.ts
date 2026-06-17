@@ -63,24 +63,26 @@ export const DEFAULT_CONFIG: CI360VideoConfig = {
 
 // ---- data-attribute coercion helpers ----
 
-function toBool(v: string): boolean {
+export function toBool(v: string): boolean {
   // Case-insensitive so author variants ('True', 'YES', 'On') aren't misread as
-  // false. Empty string = a valueless boolean attribute (e.g. `data-...-muted`).
+  // false. Empty string = a valueless boolean attribute (e.g. `muted`).
   const s = v.trim().toLowerCase();
   return s === 'true' || s === '1' || s === 'yes' || s === 'on' || s === '';
 }
 
-function toNumber(v: string): number | undefined {
+export function toNumber(v: string): number | undefined {
   if (v.trim() === '') return undefined;
   const n = Number(v);
   return isNaN(n) ? undefined : n;
 }
 
 /**
- * `data-ci-360-video-*` ↔ camelCase config key map plus a coercion function.
- * Adding a new config option means adding a line here and a default above.
+ * kebab-suffix ↔ camelCase config key map plus a coercion function. Shared by
+ * the legacy `data-ci-360-video-*` reader and the `<ci-360-video>` custom
+ * element (which reads the bare suffix as its attribute name). Adding a new
+ * config option means adding a line here and a default above.
  */
-const DATA_ATTR_MAP: Record<string, { key: keyof CI360VideoConfig; coerce: (v: string) => unknown }> = {
+export const ATTR_MAP: Record<string, { key: keyof CI360VideoConfig; coerce: (v: string) => unknown }> = {
   src:                    { key: 'src',                 coerce: String },
   projection:             { key: 'projection',          coerce: String },
   stereo:                 { key: 'stereo',              coerce: String },
@@ -127,29 +129,49 @@ const DATA_ATTR_MAP: Record<string, { key: keyof CI360VideoConfig; coerce: (v: s
 };
 
 /**
- * Parse `data-ci-360-video-*` attributes off an HTMLElement into a partial
- * config object. Unknown attributes are ignored; malformed values are warned
- * about and skipped rather than thrown — same convention as 3d-view.
+ * The kebab attribute names (suffixes) the custom element observes — i.e. every
+ * key of {@link ATTR_MAP}. Used for `static get observedAttributes()`.
  */
-export function parseDataAttributes(element: HTMLElement): Partial<CI360VideoConfig> {
+export const OBSERVED_ATTRIBUTES = Object.keys(ATTR_MAP);
+
+/** Coerce a single attribute value to its config `{ key, value }`, or null. */
+export function coerceAttribute(
+  suffix: string,
+  value: string | null,
+): { key: keyof CI360VideoConfig; value: unknown } | null {
+  const mapping = ATTR_MAP[suffix];
+  if (!mapping || value === null) return null;
+  try {
+    const coerced = mapping.coerce(value);
+    if (coerced === undefined) return null;
+    return { key: mapping.key, value: coerced };
+  } catch (e) {
+    console.warn(`CI360Video: failed to parse attribute "${suffix}":`, e);
+    return null;
+  }
+}
+
+/**
+ * Parse attributes off an element into a partial config. `prefix` is prepended
+ * to each kebab suffix: `''` for the bare `<ci-360-video>` element attributes,
+ * `'data-ci-360-video-'` for the legacy `data-*` autoInit path. Unknown
+ * attributes are ignored; malformed values warn and skip rather than throw.
+ */
+export function parseAttributes(element: HTMLElement, prefix = ''): Partial<CI360VideoConfig> {
   const config: Record<string, unknown> = {};
 
-  for (const [attrSuffix, mapping] of Object.entries(DATA_ATTR_MAP)) {
-    const attrName = `data-ci-360-video-${attrSuffix}`;
-    const value = element.getAttribute(attrName);
-    if (value === null) continue;
-
-    try {
-      const coerced = mapping.coerce(value);
-      if (coerced !== undefined) {
-        config[mapping.key] = coerced;
-      }
-    } catch (e) {
-      console.warn(`CI360Video: failed to parse data attribute "${attrName}":`, e);
-    }
+  for (const suffix of Object.keys(ATTR_MAP)) {
+    const value = element.getAttribute(`${prefix}${suffix}`);
+    const parsed = coerceAttribute(suffix, value);
+    if (parsed) config[parsed.key] = parsed.value;
   }
 
   return config as Partial<CI360VideoConfig>;
+}
+
+/** Legacy `data-ci-360-video-*` reader (back-compat for `autoInit`). */
+export function parseDataAttributes(element: HTMLElement): Partial<CI360VideoConfig> {
+  return parseAttributes(element, 'data-ci-360-video-');
 }
 
 /**

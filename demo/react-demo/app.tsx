@@ -13,7 +13,7 @@ export function App(): JSX.Element {
 
   return (
     <div style={{ maxWidth: 1200, margin: '32px auto', padding: '0 16px' }}>
-      <h1 style={{ marginBottom: 4 }}>@scaleflex/360-video — React</h1>
+      <h1 style={{ marginBottom: 4 }}>@cloudimage/360-video — React</h1>
       <p style={{ color: '#9aa0a6', marginTop: 0 }}>
         Imperative ref API + reactive props. Projection / stereo trigger a
         full re-init via React's keyed remount.

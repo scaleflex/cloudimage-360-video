@@ -44,7 +44,7 @@ import { setContainerAria, setCanvasAria, clearContainerAria } from '../a11y/ari
 import { setupFocusManagement } from '../a11y/focus';
 import { setupKeyboard, type KeyboardHandler } from '../a11y/keyboard';
 
-import { getElement, addClass, removeClass, injectStyles, removeStyles } from '../utils/dom';
+import { getElement, addClass, removeClass, injectStyles, removeStyles, type StyleRoot } from '../utils/dom';
 import { disposeObject3D } from '../utils/dispose';
 import { EventEmitter, addListener, throttle, type ThrottledFunction } from '../utils/events';
 import { checkVideoFitsGpu, getMaxTextureSize } from '../utils/capabilities';
@@ -82,6 +82,9 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
   }
 
   private container: HTMLElement;
+  // Where our stylesheet is mounted: the document, or a ShadowRoot when the
+  // container lives inside a custom element (<ci-360-video>).
+  private styleRoot: StyleRoot;
   private config: CI360VideoConfig;
   private destroyed = false;
 
@@ -166,7 +169,11 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
 
     addClass(this.container, 'ci-360-video');
     this.container.setAttribute('data-theme', this.config.theme ?? 'dark');
-    injectStyles(CSS, STYLE_ID);
+    // Resolve the style root once: a ShadowRoot if mounted inside a custom
+    // element, otherwise the document. Keeps styles scoped under Shadow DOM.
+    const root = this.container.getRootNode();
+    this.styleRoot = root instanceof ShadowRoot ? root : document;
+    injectStyles(CSS, STYLE_ID, this.styleRoot);
 
     setContainerAria(this.container, this.config.alt);
     setupFocusManagement(this.container);
@@ -984,7 +991,7 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
     removeClass(this.container, 'ci-360-video');
     removeClass(this.container, 'ci-360-video--cardboard');
     this.container.removeAttribute('data-theme');
-    removeStyles(STYLE_ID);
+    removeStyles(STYLE_ID, this.styleRoot);
     this.removeAllListeners();
   }
 

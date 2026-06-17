@@ -1,24 +1,24 @@
 <p align="center">
   <a href="https://www.scaleflex.com/en/home">
-    <img width="350" src="https://scaleflex.cloudimg.io/v7/plugins/scaleflex/logo.png?vh=b0a502&radius=25&w=700" alt="Scaleflex logo">
+    <img width="350" src="https://scaleflex.cloudimg.io/v7/plugins/scaleflex/logo.png?vh=b0a502&radius=25&w=700" alt="Cloudimage logo">
   </a>
 </p>
 
-<h1 align="center">Scaleflex 360° Video Player</h1>
+<h1 align="center">Cloudimage 360 Video</h1>
 
 <p align="center">
   <strong>An interactive 360° video player on Three.js — equirectangular &amp; fisheye projections, HLS / DASH streaming, stereo, gyroscope and a React wrapper</strong>
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@scaleflex/360-video">
-    <img src="https://img.shields.io/npm/v/@scaleflex/360-video.svg" alt="Release">
+  <a href="https://www.npmjs.com/package/@cloudimage/360-video">
+    <img src="https://img.shields.io/npm/v/@cloudimage/360-video.svg" alt="Release">
   </a>
-  <a href="https://bundlejs.com/?q=@scaleflex/360-video">
-    <img src="https://img.shields.io/bundlejs/size/@scaleflex/360-video" alt="Minified + gzipped size">
+  <a href="https://bundlejs.com/?q=@cloudimage/360-video">
+    <img src="https://img.shields.io/bundlejs/size/@cloudimage/360-video" alt="Minified + gzipped size">
   </a>
-  <a href="https://www.npmjs.com/package/@scaleflex/360-video">
-    <img src="https://img.shields.io/npm/dm/@scaleflex/360-video.svg" alt="Downloads">
+  <a href="https://www.npmjs.com/package/@cloudimage/360-video">
+    <img src="https://img.shields.io/npm/dm/@cloudimage/360-video.svg" alt="Downloads">
   </a>
   <a href="https://opensource.org/licenses/MIT">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
@@ -71,7 +71,7 @@ Part of the Cloudimage plugin family — sibling to [`@cloudimage/360-view`](../
 ## Installation
 
 ```bash
-npm install @scaleflex/360-video three
+npm install @cloudimage/360-video three
 # Optional:
 npm install hls.js               # only if you'll stream .m3u8 (HLS)
 npm install dashjs               # only if you'll stream .mpd (DASH)
@@ -82,10 +82,10 @@ Or via CDN — a single **self-contained** `<script>` (three is bundled in, no
 extra dependency needed for MP4/WebM):
 
 ```html
-<!-- Scaleflex CDN (version-pinned): -->
-<script src="https://cdn.scaleflex.com/360-video/1.3.2/360-video.min.js"></script>
+<!-- Cloudimage CDN (version-pinned): -->
+<script src="https://cdn.cloudimage.io/360-video/1.3.2/360-video.min.js"></script>
 <!-- or unpkg (always latest): -->
-<script src="https://unpkg.com/@scaleflex/360-video"></script>
+<script src="https://unpkg.com/@cloudimage/360-video"></script>
 ```
 
 For **HLS/DASH streaming** also load the optional peer as a global *before* the
@@ -105,10 +105,49 @@ code reads the same as the npm examples:
 
 ## Quick start
 
-### Vanilla JS
+### Web Component (`<ci-360-video>`)
+
+The framework-agnostic entry. Import `@cloudimage/360-video/define` once to register
+the element, then use it like any HTML tag — config maps to plain kebab attributes:
+
+```html
+<ci-360-video
+  src="https://example.com/your-360-video.mp4"
+  autoplay muted loop theme="dark"
+  style="display:block; width:100%; aspect-ratio:16/9"
+></ci-360-video>
+
+<script type="module">
+  import '@cloudimage/360-video/define';
+</script>
+```
+
+Over the **CDN** the single `<script>` registers the element for you (nothing else to import):
+
+```html
+<script src="https://cdn.cloudimage.io/360-video/1.3.2/360-video.min.js"></script>
+<ci-360-video src="…mp4" autoplay muted loop style="display:block;width:100%;aspect-ratio:16/9"></ci-360-video>
+```
+
+- **Events** are emitted as composed, bubbling `CustomEvent`s named `ci-360-video-<name>`
+  (`ci-360-video-ready`, `-play`, `-pause`, `-timeupdate`, `-view-change`, `-fullscreen-change`,
+  `-error`, …). `detail` carries the payload (e.g. the `{lon,lat,fov}` view, the current time).
+- **Complex config** (`sources`, `on*` callbacks) and the **imperative API**
+  (`el.play()`, `el.getView()`, `el.setView()`, …) are available as JS properties/methods on the element.
+- **Shadow DOM**: the engine renders inside the element's shadow root, so its styles are
+  encapsulated. Theme by setting the `--ci-360-video-*` custom properties **on the element**
+  (they inherit into the shadow tree), or flip `theme="light|dark"`.
 
 ```js
-import { CI360Video } from '@scaleflex/360-video';
+const el = document.querySelector('ci-360-video');
+el.addEventListener('ci-360-video-view-change', (e) => console.log(e.detail)); // {lon,lat,fov}
+el.sources = [{ src: 'panorama-4k.mp4', label: '4K', height: 2160 }]; // property for complex config
+```
+
+### Vanilla JS (class)
+
+```js
+import { CI360Video } from '@cloudimage/360-video';
 
 const player = new CI360Video('#player', {
   src: 'https://example.com/your-360-video.mp4',  // equirectangular 2:1 MP4
@@ -134,7 +173,7 @@ const player = new CI360Video('#player', {
   style="width: 100%; aspect-ratio: 16 / 9;"
 ></div>
 
-<script src="https://unpkg.com/@scaleflex/360-video"></script>
+<script src="https://unpkg.com/@cloudimage/360-video"></script>
 <script>window.CI360Video.CI360Video.autoInit();</script>
 ```
 
@@ -142,7 +181,7 @@ const player = new CI360Video('#player', {
 
 ```tsx
 import { useRef } from 'react';
-import { CI360VideoViewer, type CI360VideoViewerRef } from '@scaleflex/360-video/react';
+import { CI360VideoViewer, type CI360VideoViewerRef } from '@cloudimage/360-video/react';
 
 export function MyVideo() {
   const ref = useRef<CI360VideoViewerRef>(null);
@@ -160,7 +199,7 @@ export function MyVideo() {
 }
 ```
 
-The React wrapper dynamically imports the core, so it's safe to import from a Next.js Server Component or any other SSR boundary.
+The React wrapper drives the `<ci-360-video>` element under the hood and dynamically imports it, so it's safe to import from a Next.js Server Component or any other SSR boundary.
 
 ## Supported source formats
 
@@ -362,8 +401,8 @@ All colors and metrics are exposed as CSS custom properties prefixed with `--ci-
 If you store your videos in [Filerobot](https://www.scaleflex.com/digital-asset-management/filerobot/) (Scaleflex's DAM) and have **Adaptive Streaming → HLS** enabled in the project's storage settings, you can wire the player in one line:
 
 ```ts
-import { CI360Video } from '@scaleflex/360-video';
-import { fromFilerobotFile } from '@scaleflex/360-video/filerobot';
+import { CI360Video } from '@cloudimage/360-video';
+import { fromFilerobotFile } from '@cloudimage/360-video/filerobot';
 
 new CI360Video('#player', {
   ...fromFilerobotFile(file), // file: FilerobotFileLike from your API call

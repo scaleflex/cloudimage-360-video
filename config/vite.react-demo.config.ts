@@ -17,9 +17,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // The React wrapper imports the core via the package specifier; in the
-      // demo (which runs from source) point it back at src so dev:react works.
-      '@scaleflex/360-video': resolve(__dirname, '../src/index.ts'),
+      // The React wrapper imports the core via package specifiers; in the demo
+      // (which runs from source) point them back at src so dev:react works.
+      // More specific (/define) first — Vite matches by longest prefix.
+      '@cloudimage/360-video/define': resolve(__dirname, '../src/define.ts'),
+      '@cloudimage/360-video': resolve(__dirname, '../src/index.ts'),
       '@': resolve(__dirname, '../src'),
     },
   },

@@ -28,6 +28,8 @@ export default defineConfig({
         'react',
         'react-dom',
         'react/jsx-runtime',
+        // Keep the core external so the React wrapper stays thin; at runtime
+        // the package self-reference resolves `/define` to the installed copy.
         /^@cloudimage\/360-video/,
       ],
     },

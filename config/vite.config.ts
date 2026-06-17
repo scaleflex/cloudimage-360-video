@@ -1,7 +1,11 @@
 import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync } from 'fs';
+import { copyFileSync, readFileSync } from 'fs';
 import dts from 'vite-plugin-dts';
+
+const pkgVersion = JSON.parse(
+  readFileSync(resolve(__dirname, '../package.json'), 'utf-8'),
+).version as string;
 
 /**
  * Emit a standalone `dist/style.css` alongside the JS bundles.
@@ -33,6 +37,9 @@ export default defineConfig({
     }),
     emitStandaloneCss(),
   ],
+  define: {
+    __CI360_VERSION__: JSON.stringify(pkgVersion),
+  },
   build: {
     lib: {
       entry: resolve(__dirname, '../src/index.ts'),

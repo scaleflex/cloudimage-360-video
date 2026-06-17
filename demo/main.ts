@@ -1,5 +1,5 @@
 /**
- * Demo site for @scaleflex/360-video.
+ * Demo site for @cloudimage/360-video.
  *
  * Hash-routed SPA cloned 1:1 from the @scaleflex/crop demo shell (same chrome,
  * same CSS, same section rhythm):
@@ -13,7 +13,8 @@
  * capped (~16) and a 360 player is heavy, so this is load-bearing.
  */
 
-import { CI360Video } from '../src/index';
+import '../src/define'; // registers <ci-360-video>
+import type { CI360VideoElement } from '../src/web-component/ci-360-video';
 import type { CI360VideoConfig } from '../src/core/types';
 import { fromFilerobotFile, type FilerobotFileLike } from '../src/filerobot/index';
 
@@ -32,7 +33,7 @@ const LAKE_HLS = 'https://scaleflex.filerobot.com/yeswy_Enhanced_Test_Lake_Video
 const STEREO_TB = 'https://scaleflex.cloudimg.io/v7/plugins/cloudimage/player-360/congo.mp4?vh=4590b0&func=proxy'; // real top-bottom stereo (Spherical V2 st3d=top-bottom)
 
 const REPO_URL = 'https://github.com/scaleflex/360-video-player';
-const NPM_URL = 'https://www.npmjs.com/package/@scaleflex/360-video';
+const NPM_URL = 'https://www.npmjs.com/package/@cloudimage/360-video';
 
 /** Switchable sources for the landing live demo. Short, plain labels. */
 const HOME_VARIANTS: { label: string; cfg: Partial<CI360VideoConfig> }[] = [
@@ -311,11 +312,17 @@ function renderFooter(): string {
 // navigate() destroys the survivor before each route change.
 // ---------------------------------------------------------------------------
 
-let activePlayer: CI360Video | null = null;
+let activePlayer: CI360VideoElement | null = null;
 
-function mountPlayer(host: HTMLElement, cfg: Partial<CI360VideoConfig>): CI360Video {
-  activePlayer = new CI360Video(host, cfg);
-  return activePlayer;
+function mountPlayer(host: HTMLElement, cfg: Partial<CI360VideoConfig>): CI360VideoElement {
+  // Replace any previous player (removing the element destroys its engine).
+  activePlayer?.remove();
+  const el = document.createElement('ci-360-video') as CI360VideoElement;
+  el.style.cssText = 'display:block;width:100%;height:100%';
+  el.config = cfg;
+  host.appendChild(el);
+  activePlayer = el;
+  return el;
 }
 
 function appendLog(logEl: HTMLElement, msg: string): void {
@@ -338,11 +345,11 @@ function renderHome(): string {
     { icon: svg('<polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/>'), title: 'Custom controls + gyro', body: 'Drag to look, wheel / pinch to zoom (FOV), never dollies off-centre. DeviceOrientation on mobile.' },
     { icon: svg('<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>'), title: 'HLS / DASH + quality', body: 'Adaptive streaming, or separate file per resolution — toolbar quality switcher for both.' },
     { icon: svg('<circle cx="13.5" cy="6.5" r=".7"/><circle cx="17.5" cy="10.5" r=".7"/><circle cx="8.5" cy="7.5" r=".7"/><circle cx="6.5" cy="12.5" r=".7"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.83-.44-1.12-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.66h1.99c3.05 0 5.56-2.5 5.56-5.56C21.97 6.01 17.46 2 12 2z"/>'), title: 'Fully themeable', body: '--ci-360-video-* CSS custom properties + light / dark toolbar — match any brand.' },
-    { icon: svg('<circle cx="12" cy="12" r="1.2"/><ellipse cx="12" cy="12" rx="10" ry="4.5"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>'), title: 'React wrapper', body: 'SSR-safe <CI360VideoViewer> + useCI360Video() hook via @scaleflex/360-video/react.' },
+    { icon: svg('<circle cx="12" cy="12" r="1.2"/><ellipse cx="12" cy="12" rx="10" ry="4.5"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>'), title: 'React wrapper', body: 'SSR-safe <CI360VideoViewer> + useCI360Video() hook via @cloudimage/360-video/react.' },
     { icon: svg('<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01"/><path d="M10 10h.01"/><path d="M14 10h.01"/><path d="M18 10h.01"/><path d="M6 14h.01"/><path d="M18 14h.01"/><path d="M10 14h4"/>'), title: 'Accessible & light', body: 'WCAG ARIA roles, full keyboard control, Three.js under the hood; adapters lazy-loaded.' },
   ];
 
-  const esmSnippet = `import { CI360Video } from '@scaleflex/360-video';
+  const esmSnippet = `import { CI360Video } from '@cloudimage/360-video';
 
 new CI360Video('#player', {
   src: '/your-360-video.mp4',   // equirectangular 2:1 MP4, .m3u8 or .mpd
@@ -350,7 +357,7 @@ new CI360Video('#player', {
   muted: true,
   loop: true,
 });`;
-  const reactSnippet = `import { CI360VideoViewer } from '@scaleflex/360-video/react';
+  const reactSnippet = `import { CI360VideoViewer } from '@cloudimage/360-video/react';
 
 export function Panorama() {
   return (
@@ -363,7 +370,7 @@ export function Panorama() {
     <span id="top"></span>
     <section class="demo-hero">
       <div class="demo-hero-inner">
-        <div class="demo-hero-badge"><span class="demo-hero-badge-dot"></span>@scaleflex/360-video</div>
+        <div class="demo-hero-badge"><span class="demo-hero-badge-dot"></span>@cloudimage/360-video</div>
         <h1 class="demo-hero-title"><span class="demo-gradient-text">360° Video</span></h1>
         <p class="demo-hero-sub">Framework-agnostic 360° (equirectangular) video player on Three.js — drag to look around, zoom, gyroscope, HLS/DASH and quality switching, in a single <code>new CI360Video()</code> call.</p>
         <div class="demo-hero-actions">
@@ -499,14 +506,14 @@ function renderDocGettingStarted(): string {
     <h2>Install</h2>
     <p>Three.js is a peer dependency — install it alongside the player. <code>hls.js</code> / <code>dashjs</code> are optional, only needed for streaming.</p>
     ${tabbedCode([
-      { label: 'npm',  code: 'npm install @scaleflex/360-video three', lang: 'bash' },
-      { label: 'pnpm', code: 'pnpm add @scaleflex/360-video three',    lang: 'bash' },
-      { label: 'yarn', code: 'yarn add @scaleflex/360-video three',    lang: 'bash' },
+      { label: 'npm',  code: 'npm install @cloudimage/360-video three', lang: 'bash' },
+      { label: 'pnpm', code: 'pnpm add @cloudimage/360-video three',    lang: 'bash' },
+      { label: 'yarn', code: 'yarn add @cloudimage/360-video three',    lang: 'bash' },
     ])}
 
     <h2>Use it</h2>
     ${tabbedCode([
-      { label: 'JavaScript', code: `import { CI360Video } from '@scaleflex/360-video';
+      { label: 'JavaScript', code: `import { CI360Video } from '@cloudimage/360-video';
 
 const player = new CI360Video('#player', {
   src: '/your-360-video.mp4',
@@ -514,14 +521,14 @@ const player = new CI360Video('#player', {
   muted: true,
   loop: true,
 });`, lang: 'typescript' },
-      { label: 'React', code: `import { CI360VideoViewer } from '@scaleflex/360-video/react';
+      { label: 'React', code: `import { CI360VideoViewer } from '@cloudimage/360-video/react';
 
 export function Panorama() {
   return <CI360VideoViewer src="/your-360-video.mp4" autoplay muted loop
     style={{ width: '100%', aspectRatio: '16 / 9' }} />;
 }`, lang: 'tsx' },
       { label: 'CDN', code: `<script src="https://unpkg.com/three"></script>
-<script src="https://unpkg.com/@scaleflex/360-video"></script>
+<script src="https://unpkg.com/@cloudimage/360-video"></script>
 
 <div data-ci-360-video-src="/your-360-video.mp4"
      data-ci-360-video-autoplay="true"
@@ -679,7 +686,7 @@ player.setView({ lon: 90, fov: 60 }, true); // animate`, 'typescript')}
 
     <h2>React</h2>
     ${codeBlock(`import { useRef } from 'react';
-import { CI360VideoViewer, type CI360VideoViewerRef } from '@scaleflex/360-video/react';
+import { CI360VideoViewer, type CI360VideoViewerRef } from '@cloudimage/360-video/react';
 
 function Viewer() {
   const ref = useRef<CI360VideoViewerRef>(null);
@@ -737,7 +744,7 @@ function renderDocTypes(): string {
   type StereoOption,
   type PlayerType,
   type Theme,
-} from '@scaleflex/360-video';`, 'typescript')}
+} from '@cloudimage/360-video';`, 'typescript')}
     <p class="demo-doc-lead" style="font-size:14px">Note: <code>VideoSource</code>, <code>QualityLevel</code> and <code>QualityId</code> are declared in <code>core/types</code>; import them from there if you need them directly.</p>
 
     <h2>View &amp; geometry</h2>
@@ -765,7 +772,7 @@ interface QualityLevel { id: number; label: string; width?: number; height?: num
     ${codeBlock(`import {
   type CI360VideoViewerProps,
   type CI360VideoViewerRef,
-} from '@scaleflex/360-video/react';`, 'typescript')}
+} from '@cloudimage/360-video/react';`, 'typescript')}
   `);
 }
 
@@ -787,7 +794,7 @@ function renderExampleBasic(): string {
   return examplePage('Basic usage', 'A single <code>CI360Video</code> on an equirectangular 360° clip (adaptive HLS, up to 4K) — drag, zoom, and use the toolbar.', `
     ${liveHost('ex-basic')}
     ${tabbedCode([
-      { label: 'JavaScript', code: `import { CI360Video } from '@scaleflex/360-video';
+      { label: 'JavaScript', code: `import { CI360Video } from '@cloudimage/360-video';
 
 new CI360Video('#player', {
   src: '${DEMO_SRC}', // equirectangular 360°, adaptive HLS (up to 4K)
@@ -795,7 +802,7 @@ new CI360Video('#player', {
   muted: true,
   loop: true,
 });`, lang: 'typescript' },
-      { label: 'React', code: `import { CI360VideoViewer } from '@scaleflex/360-video/react';
+      { label: 'React', code: `import { CI360VideoViewer } from '@cloudimage/360-video/react';
 
 <CI360VideoViewer src="/pano.mp4" autoplay muted loop />`, lang: 'tsx' },
     ])}
@@ -811,7 +818,7 @@ function renderExampleReact(): string {
   return examplePage('React wrapper', 'The <code>/react</code> entry exposes a component, an imperative ref, and a hook. It dynamically imports the core, so it is SSR-safe (Next.js / Remix).', `
     <h2>Component + ref</h2>
     ${codeBlock(`import { useRef } from 'react';
-import { CI360VideoViewer, type CI360VideoViewerRef } from '@scaleflex/360-video/react';
+import { CI360VideoViewer, type CI360VideoViewerRef } from '@cloudimage/360-video/react';
 
 export function Panorama() {
   const ref = useRef<CI360VideoViewerRef>(null);
@@ -834,7 +841,7 @@ export function Panorama() {
 }`, 'tsx')}
 
     <h2>Hook</h2>
-    ${codeBlock(`import { useCI360Video } from '@scaleflex/360-video/react';
+    ${codeBlock(`import { useCI360Video } from '@cloudimage/360-video/react';
 
 function Viewer() {
   const { containerRef, instance, ready } = useCI360Video({ src: '/pano.mp4', muted: true });
@@ -1115,8 +1122,8 @@ function hydrateExampleTheming(root: HTMLElement): void {
 function renderExampleFilerobot(): string {
   return examplePage('Filerobot source', 'When your videos live in Scaleflex Filerobot, <code>fromFilerobotFile()</code> resolves the best playback config — an HLS playlist, or the per-resolution Compression files as <code>sources</code>.', `
     ${liveHost('ex-filerobot')}
-    ${codeBlock(`import { CI360Video } from '@scaleflex/360-video';
-import { fromFilerobotFile } from '@scaleflex/360-video/filerobot';
+    ${codeBlock(`import { CI360Video } from '@cloudimage/360-video';
+import { fromFilerobotFile } from '@cloudimage/360-video/filerobot';
 
 new CI360Video('#player', {
   ...fromFilerobotFile(file), // { src, poster?, sources? }

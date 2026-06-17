@@ -40,35 +40,57 @@ export function toggleClass(el: HTMLElement, className: string, force?: boolean)
   el.classList.toggle(className, force);
 }
 
-const styleRefCounts = new Map<string, number>();
+/**
+ * Where the stylesheet is mounted. The document head for the class / light-DOM
+ * API; a ShadowRoot when the player lives inside a custom element.
+ */
+export type StyleRoot = Document | ShadowRoot;
+
+// Ref-count per root so each ShadowRoot keeps its own <style> while light-DOM
+// instances on the same document still share one tag.
+const styleRefCounts = new WeakMap<StyleRoot, Map<string, number>>();
+
+function styleContainer(root: StyleRoot): ParentNode {
+  return root === document ? document.head : (root as ShadowRoot);
+}
+
+function findStyle(root: StyleRoot, id: string): HTMLStyleElement | null {
+  return styleContainer(root).querySelector<HTMLStyleElement>(`style#${id}`);
+}
 
 /**
- * Inject CSS string into <head> once per `id`, ref-counted so that multiple
- * plugin instances on the same page share a single <style> tag.
+ * Inject a CSS string into `root` once per `id`, ref-counted. Defaults to the
+ * document head (class / light-DOM usage); pass a ShadowRoot to scope the
+ * stylesheet inside a custom element.
  */
-export function injectStyles(css: string, id: string): void {
+export function injectStyles(css: string, id: string, root: StyleRoot = document): void {
   if (!isBrowser()) return;
 
-  const count = styleRefCounts.get(id) ?? 0;
-  styleRefCounts.set(id, count + 1);
+  let counts = styleRefCounts.get(root);
+  if (!counts) {
+    counts = new Map();
+    styleRefCounts.set(root, counts);
+  }
+  counts.set(id, (counts.get(id) ?? 0) + 1);
 
-  if (document.getElementById(id)) return;
+  if (findStyle(root, id)) return;
 
   const style = document.createElement('style');
   style.id = id;
   style.textContent = css;
-  document.head.appendChild(style);
+  styleContainer(root).appendChild(style);
 }
 
-export function removeStyles(id: string): void {
+export function removeStyles(id: string, root: StyleRoot = document): void {
   if (!isBrowser()) return;
 
-  const count = (styleRefCounts.get(id) ?? 0) - 1;
+  const counts = styleRefCounts.get(root);
+  const count = (counts?.get(id) ?? 0) - 1;
   if (count < 0) return;
   if (count <= 0) {
-    styleRefCounts.delete(id);
-    document.getElementById(id)?.remove();
+    counts?.delete(id);
+    findStyle(root, id)?.remove();
   } else {
-    styleRefCounts.set(id, count);
+    counts!.set(id, count);
   }
 }

@@ -4,7 +4,7 @@
 //   npm run release -- minor   # minor bump
 //
 // CDN folder comes from FILEROBOT_CDN_FOLDER in .env.local
-// (/plugins/scaleflex/360-video/{version}/ → https://cdn.scaleflex.com/360-video/{version}/360-video.min.js).
+// (/plugins/cloudimage/360-video/{version}/ → https://cdn.cloudimage.io/360-video/{version}/360-video.min.js).
 import { execSync } from "child_process";
 import { resolve, dirname, join } from "path";
 import { fileURLToPath, pathToFileURL } from "url";

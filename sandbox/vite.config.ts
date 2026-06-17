@@ -15,10 +15,11 @@ export default defineConfig({
     // exercises the same import paths consumers use. The CSS is injected at
     // runtime by the core, so `/css` is here only for completeness.
     alias: {
-      '@scaleflex/360-video/react': resolve(__dirname, '../src/react/index.ts'),
-      '@scaleflex/360-video/filerobot': resolve(__dirname, '../src/filerobot/index.ts'),
-      '@scaleflex/360-video/css': resolve(__dirname, '../src/styles/index.css'),
-      '@scaleflex/360-video': resolve(__dirname, '../src/index.ts'),
+      '@cloudimage/360-video/define': resolve(__dirname, '../src/define.ts'),
+      '@cloudimage/360-video/react': resolve(__dirname, '../src/react/index.ts'),
+      '@cloudimage/360-video/filerobot': resolve(__dirname, '../src/filerobot/index.ts'),
+      '@cloudimage/360-video/css': resolve(__dirname, '../src/styles/index.css'),
+      '@cloudimage/360-video': resolve(__dirname, '../src/index.ts'),
     },
   },
 });

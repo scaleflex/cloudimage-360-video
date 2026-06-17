@@ -1,5 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { readFileSync } from 'fs';
+
+const pkgVersion = JSON.parse(
+  readFileSync(resolve(__dirname, '../package.json'), 'utf-8'),
+).version as string;
 
 /**
  * Standalone CDN build — a single self-contained UMD bundle for
@@ -20,6 +25,9 @@ import { resolve } from 'path';
  * emptyOutDir is false so it does not wipe vite.config.ts output).
  */
 export default defineConfig({
+  define: {
+    __CI360_VERSION__: JSON.stringify(pkgVersion),
+  },
   build: {
     outDir: resolve(__dirname, '../dist'),
     emptyOutDir: false,
@@ -27,7 +35,10 @@ export default defineConfig({
     minify: 'esbuild',
     cssCodeSplit: false,
     lib: {
-      entry: resolve(__dirname, '../src/index.ts'),
+      // Entry is the define module so the CDN <script> auto-registers
+      // <ci-360-video>. It re-exports the class API, so the UMD global still
+      // exposes window.CI360Video.CI360Video.
+      entry: resolve(__dirname, '../src/define.ts'),
       name: 'CI360Video',
       formats: ['umd'],
       fileName: () => '360-video.min.js',

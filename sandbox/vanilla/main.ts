@@ -1,7 +1,7 @@
-// Importing the package gives the player class; the core injects its CSS at
-// runtime, so no separate stylesheet import is needed.
-import CI360Video from '@scaleflex/360-video';
-import type { CI360VideoInstance } from '@scaleflex/360-video';
+// Importing `/define` registers the <ci-360-video> custom element; the engine
+// injects its CSS into the element's shadow root, so no stylesheet import.
+import '@cloudimage/360-video/define';
+import type { CI360VideoElement } from '@cloudimage/360-video';
 
 /** Verified live, CORS-enabled 360° sources (same set the landing demo uses). */
 const SOURCES = [
@@ -18,7 +18,7 @@ const host = document.getElementById('player') as HTMLElement;
 const sourceSelect = document.getElementById('source') as HTMLSelectElement;
 const stateEl = document.getElementById('state') as HTMLElement;
 
-let player: CI360VideoInstance | null = null;
+let player: CI360VideoElement | null = null;
 
 function showState(): void {
   if (!player) return;
@@ -34,9 +34,12 @@ function showState(): void {
 }
 
 function mount(src: string): void {
-  // `src` is a re-init: tear the old instance down and build a fresh one.
-  player?.destroy();
-  player = new CI360Video(host, {
+  // `src` is a re-init: remove the old element (destroys its engine) and build
+  // a fresh one.
+  player?.remove();
+  const el = document.createElement('ci-360-video') as CI360VideoElement;
+  el.style.cssText = 'display:block;width:100%;height:100%';
+  el.config = {
     src,
     autoplay: true,
     muted: true,
@@ -45,7 +48,9 @@ function mount(src: string): void {
     onViewChange: showState,
     onPlay: showState,
     onPause: showState,
-  });
+  };
+  host.appendChild(el);
+  player = el;
 }
 
 // Populate the source dropdown and boot the first one.

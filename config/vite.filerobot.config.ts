@@ -7,7 +7,7 @@ import dts from 'vite-plugin-dts';
  *
  * Vendor-specific helpers live in a separate entry so they are tree-shaken
  * out of the main bundle for consumers who don't use Filerobot — only the
- * code that calls `import('@scaleflex/360-video/filerobot')` pulls this in.
+ * code that calls `import('@cloudimage/360-video/filerobot')` pulls this in.
  */
 export default defineConfig({
   plugins: [

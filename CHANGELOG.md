@@ -1,11 +1,12 @@
 # Changelog
 
-All notable changes to `@scaleflex/360-video`.
+All notable changes to `@cloudimage/360-video`.
 
 ## [Unreleased]
 
 ### Added
 
+- **`<ci-360-video>` Web Component** — the player now ships as a framework-agnostic custom element, matching the Cloudimage plugin family. New side-effect entry `@cloudimage/360-video/define` registers it (the CDN `<script>` auto-registers too). Bare kebab attributes map to config via the shared attribute table; complex config (`sources`, `on*`) and the imperative API are JS properties/methods; engine events surface as composed, bubbling `ci-360-video-*` CustomEvents. Renders inside an **open Shadow DOM** with encapsulated styles — theme via `--ci-360-video-*` set on the host element. The React wrapper now drives this element internally (same public API). New `src/web-component/ci-360-video.ts`, `src/define.ts`, `config/vite.define.config.ts`; `injectStyles` is now Shadow-DOM-aware (`src/utils/dom.ts`). The `CI360Video` class and `data-*` `autoInit` remain exported for back-compat.
 - **Automatic stereo-layout detection** — `stereo` now accepts `'auto'` (the new default). On MP4 sources the player reads the embedded Spherical Video metadata over an HTTP range request on just the `moov` box and resolves the layout:
   - **V2** `st3d` box (`stereo_mode` byte), and
   - **V1** `GSpherical` RDF/XML (`<GSpherical:StereoMode>`, used by ExoPlayer-style files such as `congo.mp4`).
@@ -29,7 +30,7 @@ All notable changes to `@scaleflex/360-video`.
 
 ### Added
 
-- **Scaleflex Filerobot integration** under a new subpath export `@scaleflex/360-video/filerobot`.
+- **Scaleflex Filerobot integration** under a new subpath export `@cloudimage/360-video/filerobot`.
   - `fromFilerobotFile(file)` returns a spreadable `{ src, poster? }` object: HLS playlist if transcoding produced one, otherwise the original CDN URL. Spread directly into the `CI360Video` constructor.
   - `pickFilerobotVideoUrl(file)` lower-level helper returning `{ src, kind: 'hls' | 'mp4' | 'unknown' }` for callers that need branching.
   - Uses **structural typing** — no peer dependency on `@filerobot/core`. Any object matching the documented `FilerobotFileLike` shape is accepted.

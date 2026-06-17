@@ -1,4 +1,4 @@
-type EventHandler = (...args: any[]) => void;
+export type EventHandler = (...args: any[]) => void;
 
 /**
  * Minimal typed event emitter used both by the public API surface and by the

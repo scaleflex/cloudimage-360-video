@@ -20,5 +20,5 @@ the buttons to pan/tilt/zoom programmatically or switch the source. The live
 `{ lon, lat, fov }` view state is shown below the player.
 
 The CSS is injected by the core at runtime, so no stylesheet import is needed.
-The package specifiers (`@scaleflex/360-video`, `/react`, `/css`) are aliased
+The package specifiers (`@cloudimage/360-video`, `/react`, `/css`) are aliased
 to the local `src/` in `vite.config.ts`.
