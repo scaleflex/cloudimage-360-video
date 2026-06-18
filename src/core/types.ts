@@ -137,6 +137,9 @@ export interface CI360VideoConfig {
   autoRotate?: boolean;
   /** Degrees per second applied to `lon` while idle. */
   autoRotateSpeed?: number;
+  /** Milliseconds of input inactivity before auto-rotate resumes. Default
+   *  `2000` — set `0` to drift immediately with no idle wait. */
+  autoRotateIdleDelay?: number;
 
   // ---- UI ----
   theme?: Theme;

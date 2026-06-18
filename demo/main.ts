@@ -278,30 +278,31 @@ function renderFooter(): string {
       <div class="demo-footer-main">
         <div class="demo-footer-brand">
           <a href="https://www.scaleflex.com" target="_blank" rel="noopener">
-            <img src="https://assets.scaleflex.com/Marketing/Logos/Scaleflex%20Logos/Logo%20Horizontal/scaleflex%20logo%20without%20tagline%20white%20text%20%28horizontal%29%20.png?vh=85bc00" alt="Scaleflex" height="22" />
+            <img src="https://assets.scaleflex.com/Marketing/Logos/Scaleflex%20Logos/Logo%20Horizontal/scaleflex%20logo%20without%20tagline%20white%20text%20%28horizontal%29%20.png?vh=85bc00" alt="Scaleflex" height="26" />
           </a>
-          <p>Media infrastructure for teams that ship.</p>
+          <p>Framework-agnostic 360° video player on Three.js. Equirectangular &amp; fisheye, HLS / DASH, stereo and gyroscope — fully accessible, endlessly customizable.</p>
         </div>
         <div class="demo-footer-col">
           <h4>Resources</h4>
+          <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub</a>
+          <a href="${NPM_URL}" target="_blank" rel="noopener">npm</a>
           <a href="#/docs/getting-started">Documentation</a>
-          <a href="#/examples/basic">Examples</a>
-          <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub ${ICONS.external}</a>
-          <a href="${NPM_URL}" target="_blank" rel="noopener">npm ${ICONS.external}</a>
         </div>
         <div class="demo-footer-col">
-          <h4>Also by Scaleflex</h4>
-          <a href="https://www.npmjs.com/package/@scaleflex/uploader" target="_blank" rel="noopener">@scaleflex/uploader ${ICONS.external}</a>
-          <a href="https://www.npmjs.com/package/@scaleflex/asset-picker" target="_blank" rel="noopener">@scaleflex/asset-picker ${ICONS.external}</a>
-          <a href="https://github.com/scaleflex/filerobot-image-editor" target="_blank" rel="noopener">filerobot-image-editor ${ICONS.external}</a>
+          <h4>Examples</h4>
+          <a href="#/examples/basic">Vanilla Sandbox</a>
+          <a href="#/examples/react">React Sandbox</a>
+          <a href="#/examples/projections">Projections</a>
         </div>
         <div class="demo-footer-col">
-          <h4>Company</h4>
-          <a href="https://www.scaleflex.com" target="_blank" rel="noopener">About ${ICONS.external}</a>
-          <a href="https://www.scaleflex.com/en/contact" target="_blank" rel="noopener">Contact ${ICONS.external}</a>
+          <h4>Support</h4>
+          <a href="${REPO_URL}/issues" target="_blank" rel="noopener">Report an Issue</a>
+          <a href="https://www.scaleflex.com/en/contact" target="_blank" rel="noopener">Contact Us</a>
         </div>
       </div>
-      <div class="demo-footer-bottom"><span>© ${new Date().getFullYear()} Scaleflex. MIT license.</span></div>
+      <div class="demo-footer-bottom">
+        <span>MIT License — Made with care by the <a href="https://www.scaleflex.com" target="_blank" rel="noopener">Scaleflex</a> team — Powered by <a href="https://www.cloudimage.io" target="_blank" rel="noopener">Cloudimage.io</a></span>
+      </div>
     </footer>
   `;
 }
@@ -444,6 +445,7 @@ function hydrateHome(root: HTMLElement): void {
       muted: true,
       loop: true,
       autoRotate: state.autoRotate,
+      autoRotateIdleDelay: 0, // preview drifts immediately when auto-rotate is toggled on
       invertDrag: state.invertDrag,
       theme: state.theme,
     });
@@ -971,7 +973,7 @@ player.setView({ lon: 0, lat: 0, fov: 75 }, true); // animate back to centre`, '
 function hydrateExampleControls(root: HTMLElement): void {
   const host = root.querySelector<HTMLElement>('#ex-controls');
   if (!host) return;
-  mountPlayer(host, { src: DEMO_SRC, autoplay: true, muted: true, loop: true, scrollToZoom: true });
+  mountPlayer(host, { src: DEMO_SRC, autoplay: true, muted: true, loop: true, scrollToZoom: true, autoRotateIdleDelay: 0 });
   const state: Record<string, boolean> = { autoRotate: false, invertDrag: false, scrollToZoom: true, gyroscope: false };
   const labels: Record<string, string> = { autoRotate: 'Auto-rotate', invertDrag: 'Invert drag', scrollToZoom: 'Scroll-zoom', gyroscope: 'Gyroscope' };
   root.querySelectorAll<HTMLButtonElement>('[data-ctl]').forEach((btn) => {

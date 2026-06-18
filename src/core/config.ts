@@ -45,6 +45,8 @@ export const DEFAULT_CONFIG: CI360VideoConfig = {
   // Degrees per second. Positive = clockwise (look right); negative = anti-clockwise.
   // 10 deg/s ≈ a full revolution every 36 seconds — perceptible but not dizzying.
   autoRotateSpeed: 10,
+  // Idle wait before auto-rotate resumes after user input. 0 = drift immediately.
+  autoRotateIdleDelay: 2000,
 
   // UI
   theme: 'dark',

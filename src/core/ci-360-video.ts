@@ -424,6 +424,7 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
         scrollToZoom: this.config.scrollToZoom,
         autoRotate: this.config.autoRotate,
         autoRotateSpeed: this.config.autoRotateSpeed,
+        autoRotateIdleDelay: this.config.autoRotateIdleDelay,
       });
 
       // `!this.gyro` guard: a `setVRView(true)` call before init() finished may
@@ -913,6 +914,7 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
       scrollToZoom: this.config.scrollToZoom,
       autoRotate: this.config.autoRotate,
       autoRotateSpeed: this.config.autoRotateSpeed,
+      autoRotateIdleDelay: this.config.autoRotateIdleDelay,
     });
     this.viewState.updateOptions({
       fovMin: this.config.fovMin!,
