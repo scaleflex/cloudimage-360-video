@@ -367,6 +367,42 @@ export function Panorama() {
   );
 }`;
 
+  // ── "Also by Scaleflex" plugins catalog — self-contained, namespaced (sfx-*),
+  //    copied 1:1 from the marketing design. Static markup, no runtime script.
+  const IC = {
+    grid:    '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6" stroke="currentColor" stroke-width="1.7"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6" stroke="currentColor" stroke-width="1.7"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6" stroke="currentColor" stroke-width="1.7"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6" stroke="currentColor" stroke-width="1.7"/></svg>',
+    upload:  '<svg viewBox="0 0 24 24" fill="none"><path d="M12 16V6m0 0l-4 4m4-4l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 18h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+    layers:  '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l9 5-9 5-9-5 9-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 13l9 5 9-5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+    cube:    '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 3v9m0 0l8-4.5M12 12l-8-4.5" stroke="currentColor" stroke-width="1.4"/></svg>',
+    rotate:  '<svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M18 3v3.5h-3.5M6 21v-3.5h3.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    hotspot: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="11" r="2.4" stroke="currentColor" stroke-width="1.6"/><path d="M9 8.6V6m0 7.4V16m-2.4-4.6H4m7.4 0H14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    video:   '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M10 9l5 3-5 3V9z" fill="currentColor"/></svg>',
+    split:   '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M12 5v14" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 10l-2 2 2 2M15.5 10l2 2-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    carousel:'<svg viewBox="0 0 24 24" fill="none"><rect x="7" y="6" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 9v6M20 9v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    zoom:    '<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l4 4M11 8v6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    crop:    '<svg viewBox="0 0 24 24" fill="none"><path d="M6 2v14a2 2 0 0 0 2 2h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 22V8a2 2 0 0 0-2-2H2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    player:  '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M10 9l5 3-5 3V9z" fill="currentColor"/></svg>',
+  };
+  const sfxScaleflex = [
+    { name: 'asset-picker',      icon: IC.grid,   href: 'https://scaleflex.github.io/asset-picker/' },
+    { name: 'uploader',          icon: IC.upload, href: 'https://scaleflex.github.io/uploader/' },
+    { name: 'experience-picker', icon: IC.layers, href: 'https://spotlight.scaleflex.com/docs/experience-picker' },
+  ];
+  const sfxCloudimage = [
+    { name: '3d-view',       icon: IC.cube,     href: 'https://scaleflex.github.io/cloudimage-3d-view/' },
+    { name: '360-view',      icon: IC.rotate,   href: 'https://scaleflex.github.io/cloudimage-360-view/' },
+    { name: '360-video',     icon: IC.player,   href: 'https://scaleflex.github.io/cloudimage-360-video/' },
+    { name: 'hotspot',       icon: IC.hotspot,  href: 'https://scaleflex.github.io/cloudimage-hotspot/' },
+    { name: 'video-hotspot', icon: IC.video,    href: 'https://scaleflex.github.io/cloudimage-video-hotspot/' },
+    { name: 'before-after',  icon: IC.split,    href: 'https://scaleflex.github.io/cloudimage-before-after/' },
+    { name: 'carousel',      icon: IC.carousel, href: 'https://scaleflex.github.io/cloudimage-carousel/' },
+    { name: 'crop',          icon: IC.crop,     href: 'https://scaleflex.github.io/crop/' },
+    { name: 'spotlight',     icon: IC.zoom,     href: 'https://scaleflex.github.io/cloudimage-spotlight/' },
+  ];
+  const sfxArrow = '<svg class="sfx-plugin-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const sfxItem = (p: { name: string; icon: string; href: string }): string =>
+    `<a class="sfx-plugin-item" href="${p.href}" target="_blank" rel="noopener"><span class="sfx-plugin-icon">${p.icon}</span><span class="sfx-plugin-name">${p.name}</span>${sfxArrow}</a>`;
+
   return `
     <span id="top"></span>
     <section class="demo-hero">
@@ -426,6 +462,36 @@ export function Panorama() {
         <h2>Everything you need for 360° video</h2>
         <div class="demo-feature-grid">
           ${featureCards.map((f) => `<div class="demo-feature-card"><div class="demo-feature-icon">${f.icon}</div><h3>${f.title}</h3><p>${f.body}</p></div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="sfx-also">
+      <div class="sfx-also-head">
+        <div class="sfx-also-label">Also by Scaleflex</div>
+        <h2>Plugins for the modern web</h2>
+        <p>A family of framework-agnostic JavaScript plugins — for digital asset management and interactive media experiences.</p>
+      </div>
+      <div class="sfx-also-cols">
+        <div class="sfx-col sfx-col--sf">
+          <div class="sfx-col-head">
+            <span class="sfx-col-badge"></span>
+            <span class="sfx-col-title">Scaleflex</span>
+            <span class="sfx-col-ns">@scaleflex/*</span>
+            <span class="sfx-col-count">${sfxScaleflex.length}</span>
+          </div>
+          <div class="sfx-col-sub">Digital asset management</div>
+          <div>${sfxScaleflex.map(sfxItem).join('')}</div>
+        </div>
+        <div class="sfx-col sfx-col--ci">
+          <div class="sfx-col-head">
+            <span class="sfx-col-badge"></span>
+            <span class="sfx-col-title">Cloudimage</span>
+            <span class="sfx-col-ns">js-cloudimage-*</span>
+            <span class="sfx-col-count">${sfxCloudimage.length}</span>
+          </div>
+          <div class="sfx-col-sub">Interactive media experiences</div>
+          <div class="sfx-list-2col">${sfxCloudimage.map(sfxItem).join('')}</div>
         </div>
       </div>
     </section>
