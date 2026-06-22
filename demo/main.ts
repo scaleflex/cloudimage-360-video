@@ -50,10 +50,11 @@ const FOOTER = {
   repoUrl: REPO_URL,
   npmUrl: NPM_URL,
   docsHref: '#/docs/getting-started',
-  /** Examples column — this plugin's sandboxes / sample pages. */
+  /** Examples column — runnable CodeSandbox sandboxes (load the player from
+   *  npm/CDN, sources in `codesandbox/*`) + internal sample pages. */
   examples: [
-    { label: 'Vanilla Sandbox', href: '#/examples/basic' },
-    { label: 'React Sandbox', href: '#/examples/react' },
+    { label: 'Vanilla Sandbox', href: 'https://codesandbox.io/p/sandbox/github/scaleflex/cloudimage-360-video/tree/main/codesandbox/vanilla' },
+    { label: 'React Sandbox', href: 'https://codesandbox.io/p/sandbox/github/scaleflex/cloudimage-360-video/tree/main/codesandbox/react' },
     { label: 'Projections', href: '#/examples/projections' },
   ],
 };
@@ -314,7 +315,7 @@ function renderFooter(): string {
           </div>
           <div class="demo-footer-col">
             <h4>Examples</h4>
-            ${FOOTER.examples.map((e) => `<a href="${e.href}">${e.label}</a>`).join('\n            ')}
+            ${FOOTER.examples.map((e) => `<a href="${e.href}"${e.href.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${e.label}</a>`).join('\n            ')}
           </div>
           <div class="demo-footer-col">
             <h4>Support</h4>
@@ -419,7 +420,7 @@ export function Panorama() {
     { name: 'video-hotspot', icon: IC.video,    href: 'https://scaleflex.github.io/cloudimage-video-hotspot/' },
     { name: 'before-after',  icon: IC.split,    href: 'https://scaleflex.github.io/cloudimage-before-after/' },
     { name: 'carousel',      icon: IC.carousel, href: 'https://scaleflex.github.io/cloudimage-carousel/' },
-    { name: 'crop',          icon: IC.crop,     href: 'https://scaleflex.github.io/crop/' },
+    { name: 'crop',          icon: IC.crop,     href: 'https://scaleflex.github.io/cloudimage-image-crop/' },
     { name: 'spotlight',     icon: IC.zoom,     href: 'https://scaleflex.github.io/cloudimage-spotlight/' },
   ];
   const sfxArrow = '<svg class="sfx-plugin-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
