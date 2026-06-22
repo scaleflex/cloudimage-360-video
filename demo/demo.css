@@ -742,6 +742,23 @@ kbd {
   color: #fff;
 }
 .demo-btn--glass:active { transform: translateY(0); }
+/* Glass is white-on-translucent — built for dark sections (hero). On the light
+   Quick-start surface it's invisible, so recolor it there as a light outline
+   button while keeping the same size as the adjacent primary CTA. */
+.demo-quick-start .demo-btn--glass {
+  color: var(--sf-text);
+  background: var(--sf-bg);
+  border-color: var(--sf-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--sf-shadow-sm);
+}
+.demo-quick-start .demo-btn--glass:hover {
+  color: var(--sf-primary);
+  background: var(--sf-section-bg);
+  border-color: var(--sf-primary);
+  box-shadow: var(--sf-shadow-md);
+}
 .demo-btn--ghost {
   color: var(--sf-text-secondary);
   background: var(--sf-bg);
@@ -1094,10 +1111,10 @@ kbd {
 .sfx-also {
   --sfx-accent: #00d4aa;
   --sfx-primary-light: #2c99ff;
-  --sfx-surface: #111738;
+  --sfx-surface: #0a0e27;
   background: var(--sfx-surface);
   color: #fff;
-  padding: 56px 32px;
+  padding: 80px 32px;
   position: relative;
   overflow: hidden;
 }
@@ -1108,6 +1125,19 @@ kbd {
   background:
     radial-gradient(ellipse 45% 55% at 25% 25%, rgba(0, 212, 170, 0.07) 0%, transparent 60%),
     radial-gradient(ellipse 50% 60% at 78% 30%, rgba(44, 153, 255, 0.09) 0%, transparent 60%);
+  pointer-events: none;
+}
+/* Thin gradient separator at the bottom edge (blends into the footer below). */
+.sfx-also::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  max-width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #60a5fa, transparent);
   pointer-events: none;
 }
 
@@ -1177,7 +1207,7 @@ kbd {
 }
 .sfx-col-ns {
   font-family: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
   padding: 3px 9px;
   border-radius: 7px;
@@ -1217,7 +1247,7 @@ kbd {
 .sfx-col--ci .sfx-plugin-icon { color: var(--sfx-primary-light); }
 .sfx-plugin-icon svg { width: 18px; height: 18px; }
 .sfx-plugin-name {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
   overflow: hidden;
@@ -1231,14 +1261,22 @@ kbd {
 .sfx-col--sf .sfx-plugin-item:hover .sfx-plugin-arrow { color: var(--sfx-accent); }
 .sfx-col--ci .sfx-plugin-item:hover .sfx-plugin-arrow { color: var(--sfx-primary-light); }
 
-@media (max-width: 760px) {
+/* Collapse to a single column at the SAME width the footer does (≤960px) and
+   share its 24px side padding, so the bottom plugins card is full-width and its
+   left edge lines up with the footer's RESOURCES column directly below it. */
+@media (max-width: 960px) {
   .sfx-also { padding: 48px 24px; }
   .sfx-also-cols { grid-template-columns: 1fr; gap: 18px; }
   .sfx-list-2col { grid-template-columns: 1fr; }
 }
 
 /* ======================================================================
- *  Footer
+ *  Footer — canonical template shared across all Scaleflex/Cloudimage plugins.
+ *  Fixed sizing (do not diverge per repo): content width 1215px (aligned with
+ *  .sfx-also-cols above), brand col 1.5fr + three 1fr link cols, 40px gap,
+ *  56/32/32 padding. Responsive: 2 cols ≤1024px, single col ≤640px. Drop this
+ *  whole block in as-is; only the per-plugin link text/URLs differ (see FOOTER
+ *  in demo/main.ts).
  * ==================================================================== */
 
 .demo-footer {
@@ -1247,13 +1285,28 @@ kbd {
   padding: 56px 32px 32px;
 }
 .demo-footer-main {
-  max-width: var(--sf-content-max);
+  /* Mirror the .sfx-also-cols grid above (max-width 1215px, 1fr 2fr, 24px gap)
+     so the brand sits under the Scaleflex card and the link group is exactly
+     the size & position of the Cloudimage card — the 2fr column (≈794px). */
+  max-width: 1215px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.5fr repeat(3, 1fr);
-  gap: 40px;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  align-items: start;
 }
-.demo-footer-brand img { display: block; height: 26px; margin-bottom: 14px; }
+/* The three link columns (Resources / Examples / Support) fill the 2fr column
+   (Cloudimage-card width) and spread across it. */
+.demo-footer-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+/* The horizontal logo's S-mark spans the full image height, while the
+   "scaleflex" wordmark sits ~5px lower inside the box. Nudge the logo up so the
+   WORD — not the mark — lines up with the column headings (Resources/…); the
+   mark is allowed to overhang slightly above. Tune the translate if needed. */
+.demo-footer-brand img { display: block; height: 26px; margin-bottom: 12px; transform: translateY(-4px); }
 .demo-footer-brand p {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.5);
@@ -1282,7 +1335,7 @@ kbd {
 .demo-footer-col a:hover { color: #fff; }
 .demo-footer-col svg { opacity: 0.5; }
 .demo-footer-bottom {
-  max-width: var(--sf-content-max);
+  max-width: 1215px;
   margin: 32px auto 0;
   padding-top: 24px;
   border-top: 1px solid var(--sf-dark-border);
@@ -1522,9 +1575,6 @@ kbd {
  *  Responsive
  * ==================================================================== */
 
-@media (max-width: 1024px) {
-  .demo-footer-main { grid-template-columns: 1fr 1fr; }
-}
 
 @media (max-width: 960px) {
   .demo-topbar-inner { padding: 0 20px; gap: 12px; }
@@ -1631,8 +1681,21 @@ kbd {
 
   .demo-hero { padding: 72px 20px 56px; }
   .demo-section-inner { padding: 60px 20px; }
-  .demo-footer { padding: 40px 20px 24px; }
+  /* Side padding matches .sfx-also's mobile 24px so the footer's content
+     edge lines up with the plugins card stacked directly above it. The four
+     columns stay in one row (just a tighter gap) so the right-most Support
+     column lines up with the plugins card's right edge — collapsing to a
+     single column only happens on phones (≤620px, below). */
+  .demo-footer { padding: 40px 24px 24px; }
+}
+
+/* Phones/small tablets: with the wide column gap, four columns no longer fit on
+   one row, so stack the footer into a single left-aligned column. The plugins
+   block is single-column here too, so left edges still line up. */
+@media (max-width: 720px) {
+  /* Stack the brand and the three link columns into a single column. */
   .demo-footer-main { grid-template-columns: 1fr; gap: 28px; }
+  .demo-footer-links { flex-direction: column; gap: 28px; }
 }
 
 @media (max-width: 480px) {

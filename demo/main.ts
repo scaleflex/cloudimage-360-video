@@ -35,6 +35,29 @@ const STEREO_TB = 'https://scaleflex.cloudimg.io/v7/plugins/cloudimage/player-36
 const REPO_URL = 'https://github.com/scaleflex/cloudimage-360-video';
 const NPM_URL = 'https://www.npmjs.com/package/@cloudimage/360-video';
 
+/**
+ * Canonical footer config — the ONLY part that changes between plugin repos.
+ * The footer markup, its three columns (Resources / Examples / Support) and all
+ * sizing live in `renderFooter()` + the `.demo-footer*` CSS and stay identical
+ * everywhere. To port the standard footer into a sibling plugin: copy
+ * `renderFooter()` and the `.demo-footer*` CSS block as-is, then fill in this
+ * object with that plugin's blurb, repo/npm/docs URLs and example links.
+ */
+const FOOTER = {
+  /** One-sentence product blurb shown under the Scaleflex logo. */
+  blurb:
+    'Framework-agnostic 360° video player on Three.js. Equirectangular & fisheye, HLS / DASH, stereo and gyroscope — fully accessible, endlessly customizable.',
+  repoUrl: REPO_URL,
+  npmUrl: NPM_URL,
+  docsHref: '#/docs/getting-started',
+  /** Examples column — this plugin's sandboxes / sample pages. */
+  examples: [
+    { label: 'Vanilla Sandbox', href: '#/examples/basic' },
+    { label: 'React Sandbox', href: '#/examples/react' },
+    { label: 'Projections', href: '#/examples/projections' },
+  ],
+};
+
 /** Switchable sources for the landing live demo. Short, plain labels. */
 const HOME_VARIANTS: { label: string; cfg: Partial<CI360VideoConfig> }[] = [
   { label: '4K', cfg: { src: DEMO_SRC } },        // HLS adaptive, up to 4K
@@ -280,24 +303,24 @@ function renderFooter(): string {
           <a href="https://www.scaleflex.com" target="_blank" rel="noopener">
             <img src="https://assets.scaleflex.com/Marketing/Logos/Scaleflex%20Logos/Logo%20Horizontal/scaleflex%20logo%20without%20tagline%20white%20text%20%28horizontal%29%20.png?vh=85bc00" alt="Scaleflex" height="26" />
           </a>
-          <p>Framework-agnostic 360° video player on Three.js. Equirectangular &amp; fisheye, HLS / DASH, stereo and gyroscope — fully accessible, endlessly customizable.</p>
+          <p>${FOOTER.blurb}</p>
         </div>
-        <div class="demo-footer-col">
-          <h4>Resources</h4>
-          <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub</a>
-          <a href="${NPM_URL}" target="_blank" rel="noopener">npm</a>
-          <a href="#/docs/getting-started">Documentation</a>
-        </div>
-        <div class="demo-footer-col">
-          <h4>Examples</h4>
-          <a href="#/examples/basic">Vanilla Sandbox</a>
-          <a href="#/examples/react">React Sandbox</a>
-          <a href="#/examples/projections">Projections</a>
-        </div>
-        <div class="demo-footer-col">
-          <h4>Support</h4>
-          <a href="${REPO_URL}/issues" target="_blank" rel="noopener">Report an Issue</a>
-          <a href="https://www.scaleflex.com/en/contact" target="_blank" rel="noopener">Contact Us</a>
+        <div class="demo-footer-links">
+          <div class="demo-footer-col">
+            <h4>Resources</h4>
+            <a href="${FOOTER.repoUrl}" target="_blank" rel="noopener">GitHub</a>
+            <a href="${FOOTER.npmUrl}" target="_blank" rel="noopener">npm</a>
+            <a href="${FOOTER.docsHref}">Documentation</a>
+          </div>
+          <div class="demo-footer-col">
+            <h4>Examples</h4>
+            ${FOOTER.examples.map((e) => `<a href="${e.href}">${e.label}</a>`).join('\n            ')}
+          </div>
+          <div class="demo-footer-col">
+            <h4>Support</h4>
+            <a href="${FOOTER.repoUrl}/issues" target="_blank" rel="noopener">Report an Issue</a>
+            <a href="https://www.scaleflex.com/en/contact" target="_blank" rel="noopener">Contact Us</a>
+          </div>
         </div>
       </div>
       <div class="demo-footer-bottom">
