@@ -1329,6 +1329,7 @@ kbd {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.55);
   padding: 4px 0;
+  text-decoration: none;
   transition: color 0.15s ease;
 }
 .demo-footer-col a + a { margin-top: 2px; }
@@ -1345,6 +1346,7 @@ kbd {
 }
 .demo-footer-bottom a {
   color: var(--sf-primary-light);
+  text-decoration: none;
   transition: color 0.15s ease;
 }
 .demo-footer-bottom a:hover { color: var(--sf-primary-mid); }
