@@ -413,15 +413,15 @@ export function Panorama() {
     { name: 'experience-picker', icon: IC.layers, href: 'https://spotlight.scaleflex.com/docs/experience-picker' },
   ];
   const sfxCloudimage = [
-    { name: '3d-view',       icon: IC.cube,     href: 'https://scaleflex.github.io/cloudimage-3d-view/' },
-    { name: '360-view',      icon: IC.rotate,   href: 'https://scaleflex.github.io/cloudimage-360-view/' },
-    { name: '360-video',     icon: IC.player,   href: 'https://scaleflex.github.io/cloudimage-360-video/' },
-    { name: 'hotspot',       icon: IC.hotspot,  href: 'https://scaleflex.github.io/cloudimage-hotspot/' },
-    { name: 'video-hotspot', icon: IC.video,    href: 'https://scaleflex.github.io/cloudimage-video-hotspot/' },
-    { name: 'before-after',  icon: IC.split,    href: 'https://scaleflex.github.io/cloudimage-before-after/' },
-    { name: 'carousel',      icon: IC.carousel, href: 'https://scaleflex.github.io/cloudimage-carousel/' },
-    { name: 'crop',          icon: IC.crop,     href: 'https://scaleflex.github.io/cloudimage-image-crop/' },
-    { name: 'spotlight',     icon: IC.zoom,     href: 'https://scaleflex.github.io/cloudimage-spotlight/' },
+    { name: '3D Viewer',          icon: IC.cube,     href: 'https://scaleflex.github.io/cloudimage-3d-view/' },
+    { name: '360 Image View',     icon: IC.rotate,   href: 'https://scaleflex.github.io/cloudimage-360-view/' },
+    { name: '360° Video',         icon: IC.player,   href: 'https://scaleflex.github.io/cloudimage-360-video/' },
+    { name: 'Image Hotspots',     icon: IC.hotspot,  href: 'https://scaleflex.github.io/cloudimage-hotspot/' },
+    { name: 'Video Hotspots',     icon: IC.video,    href: 'https://scaleflex.github.io/cloudimage-video-hotspot/' },
+    { name: 'Image Before After', icon: IC.split,    href: 'https://scaleflex.github.io/cloudimage-before-after/' },
+    { name: 'Image Carousel',     icon: IC.carousel, href: 'https://scaleflex.github.io/cloudimage-carousel/' },
+    { name: 'Image Crop',         icon: IC.crop,     href: 'https://scaleflex.github.io/cloudimage-image-crop/' },
+    { name: 'Spotlight',          icon: IC.zoom,     href: 'https://scaleflex.github.io/cloudimage-spotlight/' },
   ];
   const sfxArrow = '<svg class="sfx-plugin-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const sfxItem = (p: { name: string; icon: string; href: string }): string =>
