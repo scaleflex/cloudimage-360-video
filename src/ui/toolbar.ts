@@ -7,7 +7,9 @@ import { createDropdown, type DropdownHandle } from './dropdown';
 
 // ---- Lucide-style SVG icons (copied verbatim from @cloudimage/video-hotspot for 1:1 visual) ----
 const PLAY_SVG =
-  '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>';
+  // Triangle nudged right of geometric centre for optical balance (a wide-based,
+  // pointy play glyph reads as off-centre-left when bbox-centred).
+  '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="7,3 21,12 7,21"/></svg>';
 const PAUSE_SVG =
   '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
 const VOLUME_SVG =
@@ -141,9 +143,9 @@ export class Toolbar {
         'aria-label': 'Playback speed',
         'aria-expanded': 'false',
       });
-      this.speedBtn.textContent = '1×';
+      this.speedBtn.textContent = '1x';
       this.speedDropdown = createDropdown({
-        items: SPEEDS.map((s) => ({ id: s, label: `${s}×` })),
+        items: SPEEDS.map((s) => ({ id: s, label: `${s}x` })),
         activeId: 1,
         onSelect: (id) => this.handleSpeedSelect(Number(id)),
       });
@@ -315,7 +317,7 @@ export class Toolbar {
 
   private handleSpeedSelect(rate: number): void {
     this.pendingSpeed = rate;
-    if (this.speedBtn) this.speedBtn.textContent = `${rate}×`;
+    if (this.speedBtn) this.speedBtn.textContent = `${rate}x`;
     this.speedDropdown?.setActiveId(rate);
     this.opts.onSpeedChange(rate);
     this.closeAllDropdowns();
@@ -378,7 +380,7 @@ export class Toolbar {
     this.progressBar.update(this.lastTime, this.lastDuration, this.lastBuffered);
   }
   setSpeed(rate: number): void {
-    if (this.speedBtn) this.speedBtn.textContent = `${rate}×`;
+    if (this.speedBtn) this.speedBtn.textContent = `${rate}x`;
     this.speedDropdown?.setActiveId(rate);
     if (this.pendingSpeed !== null && Math.abs(rate - this.pendingSpeed) < 0.001) {
       this.pendingSpeed = null;

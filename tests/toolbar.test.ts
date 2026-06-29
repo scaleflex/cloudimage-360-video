@@ -58,7 +58,7 @@ describe('Toolbar', () => {
     expect(item150).not.toBeNull();
     item150.click();
     expect(onSpeedChange).toHaveBeenCalledWith(1.5);
-    expect(btn.textContent).toBe('1.5×');
+    expect(btn.textContent).toBe('1.5x'); // ASCII 'x', matching @cloudimage/video-hotspot
     expect(dropdown.classList.contains('ci-360-video-dropdown--open')).toBe(false);
   });
 

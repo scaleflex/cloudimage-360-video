@@ -37,7 +37,10 @@ export function createActivateOverlay(opts: ActivateOverlayOptions = {}): Activa
   icon.innerHTML =
     '<svg viewBox="0 0 24 24" width="56" height="56" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="11" fill="rgba(0,0,0,0.5)" stroke="currentColor" stroke-width="1.5"/>' +
-    '<polygon points="9,7 18,12 9,17" fill="currentColor"/></svg>';
+    // Optically centred play glyph (picked by eye against the circle centre):
+    // base x=8.5, tip x=17.5 — a touch left of bbox-centre so the wide base
+    // balances the pointy tip.
+    '<polygon points="8.5,7 17.5,12 8.5,17" fill="currentColor"/></svg>';
   root.appendChild(icon);
 
   let callback: (() => void) | null = null;
