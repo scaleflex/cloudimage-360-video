@@ -505,6 +505,46 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
         );
         this.toolbar.startIdleTimer(3000);
 
+        // ---- click / tap on the panorama toggles play / pause ----
+        // Only fire on a genuine tap: a single pointer that barely moved and
+        // didn't land on the toolbar/overlays. A drag-to-rotate (moved past the
+        // threshold) or a pinch (a second pointer) must NOT toggle playback.
+        const TAP_MOVE_PX = 6;
+        let tapId: number | null = null;
+        let tapX = 0;
+        let tapY = 0;
+        let tapDisqualified = false; // moved too far, or became multi-pointer
+        const overUI = (target: EventTarget | null): boolean =>
+          target instanceof Element &&
+          !!target.closest(
+            '.ci-360-video-controls, .ci-360-video-loading, .ci-360-video-error, .ci-360-video-activate, .ci-360-video-overlays',
+          );
+        const onTapDown = (e: PointerEvent): void => {
+          if (overUI(e.target)) { tapId = null; return; }
+          if (tapId !== null) { tapDisqualified = true; return; } // 2nd pointer = pinch
+          tapId = e.pointerId;
+          tapX = e.clientX;
+          tapY = e.clientY;
+          tapDisqualified = false;
+        };
+        const onTapMove = (e: PointerEvent): void => {
+          if (e.pointerId !== tapId) return;
+          if (Math.hypot(e.clientX - tapX, e.clientY - tapY) > TAP_MOVE_PX) {
+            tapDisqualified = true;
+          }
+        };
+        const onTapUp = (e: PointerEvent): void => {
+          if (e.pointerId !== tapId) return;
+          const isTap = !tapDisqualified;
+          tapId = null;
+          if (isTap) this.togglePlay();
+        };
+        this.idleListenerCleanups.push(
+          addListener(this.container, 'pointerdown', onTapDown as EventListener),
+          addListener(this.container, 'pointermove', onTapMove as EventListener),
+          addListener(this.container, 'pointerup', onTapUp as EventListener),
+        );
+
         // Check GPU fit in case metadata already loaded before the toolbar existed.
         if (video.readyState >= 1) checkGpu();
       }
@@ -769,6 +809,12 @@ export class CI360Video extends EventEmitter implements CI360VideoInstance {
     if (this.adapter) await this.adapter.play();
   }
   pause(): void { this.adapter?.pause(); }
+  /** Toggle play/pause — shared by the toolbar, keyboard, and click-on-video. */
+  togglePlay(): void {
+    if (!this.adapter) return;
+    if (this.adapter.isPaused()) void this.play();
+    else this.pause();
+  }
   seek(time: number): void { this.adapter?.seek(time); }
   isPaused(): boolean { return this.adapter ? this.adapter.isPaused() : true; }
   getCurrentTime(): number { return this.adapter?.getCurrentTime() ?? 0; }

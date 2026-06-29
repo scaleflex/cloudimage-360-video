@@ -12,6 +12,12 @@
   --ci-360-video-progress-fill: #ff4444;
   --ci-360-video-progress-buffered: rgba(255, 255, 255, 0.3);
 
+  /* === Volume slider === */
+  --ci-360-video-volume-track: rgba(255, 255, 255, 0.3);
+  --ci-360-video-volume-fill: #ffffff;
+  --ci-360-video-volume-thumb: #ffffff;
+  --ci-360-video-volume-pct: 100%;
+
   /* === Transitions === */
   --ci-360-video-hover-transition: 200ms ease;
   --ci-360-video-controls-transition: 300ms ease;
@@ -175,7 +181,7 @@
   color: inherit;
   cursor: pointer;
   padding: 0;
-  border-radius: 4px;
+  border-radius: 50%;
   transition: background 150ms ease;
 }
 .ci-360-video-controls button:hover { background: rgba(255, 255, 255, 0.1); }
@@ -200,7 +206,13 @@
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(
+    to right,
+    var(--ci-360-video-volume-fill) 0%,
+    var(--ci-360-video-volume-fill) var(--ci-360-video-volume-pct),
+    var(--ci-360-video-volume-track) var(--ci-360-video-volume-pct),
+    var(--ci-360-video-volume-track) 100%
+  );
   border-radius: 2px;
   outline: none;
   cursor: pointer;
@@ -210,14 +222,14 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ci-360-video-volume-thumb);
   cursor: pointer;
 }
 .ci-360-video-controls-volume-slider::-moz-range-thumb {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ci-360-video-volume-thumb);
   cursor: pointer;
   border: none;
 }
@@ -235,8 +247,8 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(255, 204, 0, 0.18);
   color: #ffcc00;
@@ -248,7 +260,7 @@
 /* Generic pill button (used by speed and quality) */
 .ci-360-video-controls .ci-360-video-pill-btn {
   width: auto;
-  height: 28px;
+  height: 36px;
   padding: 0 14px;
   font-size: 13px;
   font-weight: 600;
@@ -347,8 +359,11 @@
 /* === Progress Bar (1:1 with video-hotspot) === */
 .ci-360-video-progress {
   position: relative;
-  padding: 8px 12px 0;
+  /* Generous vertical padding = a tall, easy-to-grab hit zone around the thin
+     visual bar (drag pointer events live on this container, not the 4px bar). */
+  padding: 10px 12px 8px;
   cursor: pointer;
+  touch-action: none;
 }
 .ci-360-video-progress-bar {
   position: relative;
@@ -424,6 +439,9 @@
   --ci-360-video-controls-color: #111;
   --ci-360-video-progress-bg: rgba(0, 0, 0, 0.15);
   --ci-360-video-progress-buffered: rgba(0, 0, 0, 0.3);
+  --ci-360-video-volume-track: rgba(0, 0, 0, 0.2);
+  --ci-360-video-volume-fill: #111111;
+  --ci-360-video-volume-thumb: #111111;
 }
 .ci-360-video[data-theme='light'] .ci-360-video-controls button:hover {
   background: rgba(0, 0, 0, 0.08);

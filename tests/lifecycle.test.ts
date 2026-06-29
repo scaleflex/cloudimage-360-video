@@ -16,9 +16,35 @@ async function flushAsync(): Promise<void> {
   await new Promise((r) => setTimeout(r, 0));
 }
 
+function dispatchPointer(el: Element, type: string, id: number, x: number, y: number): void {
+  const ev = new MouseEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true });
+  Object.defineProperty(ev, 'pointerId', { value: id, configurable: true });
+  el.dispatchEvent(ev);
+}
+
 describe('CI360Video lifecycle', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
+  });
+
+  it('a tap on the panorama toggles play/pause, a drag-to-rotate does not', async () => {
+    const container = makeContainer();
+    const p = new CI360Video(container, { src: 'a.mp4' });
+    await flushAsync();
+    const toggle = vi.spyOn(p, 'togglePlay');
+
+    // Tap: down + up at the same spot → toggles.
+    dispatchPointer(container, 'pointerdown', 1, 100, 100);
+    dispatchPointer(container, 'pointerup', 1, 100, 100);
+    expect(toggle).toHaveBeenCalledTimes(1);
+
+    // Drag: down, move past the threshold, up → must NOT toggle.
+    toggle.mockClear();
+    dispatchPointer(container, 'pointerdown', 2, 100, 100);
+    dispatchPointer(container, 'pointermove', 2, 200, 120);
+    dispatchPointer(container, 'pointerup', 2, 200, 120);
+    expect(toggle).not.toHaveBeenCalled();
+    p.destroy();
   });
 
   it('constructs without throwing', () => {

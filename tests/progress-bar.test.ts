@@ -31,6 +31,34 @@ describe('progress-bar', () => {
     pb.destroy();
   });
 
+  it('fill + handle follow the cursor during a drag, even with no onScrub wired', () => {
+    // Regression: the toolbar wires only onSeek (no onScrub), so while dragging
+    // nothing moved and an incoming video update() snapped the handle back to the
+    // not-yet-sought playback time — the bar felt impossible to grab and drag.
+    const onSeek = vi.fn();
+    const pb = createProgressBar({ onSeek });
+    document.body.appendChild(pb.element);
+    const bar = pb.element.querySelector('.ci-360-video-progress-bar') as HTMLElement;
+    bar.getBoundingClientRect = () => ({ left: 0, width: 100, top: 0, height: 4, right: 100, bottom: 4, x: 0, y: 0, toJSON() {} }) as DOMRect;
+    const fill = pb.element.querySelector('.ci-360-video-progress-fill') as HTMLElement;
+    const handle = pb.element.querySelector('.ci-360-video-progress-handle') as HTMLElement;
+
+    pb.update(10, 100, 0); // playback at 10% before the drag
+    dispatchPointer(bar, 'pointerdown', 1, 80, 0);
+    dispatchPointer(bar, 'pointermove', 1, 80, 0);
+    expect(fill.style.width).toBe('80%');
+    expect(handle.style.left).toBe('80%');
+
+    // Video timeupdate during the drag must NOT snap the handle back to 10%.
+    pb.update(10, 100, 0);
+    expect(fill.style.width).toBe('80%');
+    expect(handle.style.left).toBe('80%');
+
+    dispatchPointer(bar, 'pointerup', 1, 80, 0);
+    expect(onSeek).toHaveBeenCalledWith(80); // ratio 0.8 * duration 100
+    pb.destroy();
+  });
+
   it('pointercancel resets the drag without committing a seek', () => {
     // Regression: pointercancel ran the same handler as pointerup and seeked to
     // the cancel coordinate, jumping the video on an interrupted gesture.

@@ -50,11 +50,21 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
   let lastDuration = 0;
   let lastCurrentTime = 0;
 
-  const xToTime = (clientX: number): number => {
+  const xToRatio = (clientX: number): number => {
     const rect = bar.getBoundingClientRect();
     if (rect.width <= 0) return 0;
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    return ratio * lastDuration;
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  };
+
+  const xToTime = (clientX: number): number => xToRatio(clientX) * lastDuration;
+
+  // Paint fill + handle locally so the bar tracks the cursor during a drag even
+  // when the caller wires no onScrub (video isn't seeking yet — only on release).
+  const paint = (ratio: number): void => {
+    const pct = ratio * 100;
+    fill.style.width = `${pct}%`;
+    handle.style.left = `${pct}%`;
+    bar.setAttribute('aria-valuenow', String(Math.round(pct)));
   };
 
   const positionTooltip = (clientX: number, time: number): void => {
@@ -81,18 +91,20 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     dragging = true;
     addClass(root, 'ci-360-video-progress--dragging');
     addClass(tooltip, 'ci-360-video-progress-tooltip--visible');
-    try { bar.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+    try { root.setPointerCapture(e.pointerId); } catch { /* ignore */ }
     opts.onDragStart?.();
-    const t = xToTime(e.clientX);
-    positionTooltip(e.clientX, t);
-    opts.onScrub?.(t);
+    const ratio = xToRatio(e.clientX);
+    paint(ratio);
+    positionTooltip(e.clientX, ratio * lastDuration);
+    opts.onScrub?.(ratio * lastDuration);
   };
 
   const onMove = (e: PointerEvent): void => {
     if (!dragging) return;
-    const t = xToTime(e.clientX);
-    positionTooltip(e.clientX, t);
-    opts.onScrub?.(t);
+    const ratio = xToRatio(e.clientX);
+    paint(ratio);
+    positionTooltip(e.clientX, ratio * lastDuration);
+    opts.onScrub?.(ratio * lastDuration);
   };
 
   const onUp = (e: PointerEvent): void => {
@@ -100,7 +112,7 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     dragging = false;
     removeClass(root, 'ci-360-video-progress--dragging');
     removeClass(tooltip, 'ci-360-video-progress-tooltip--visible');
-    try { if (bar.hasPointerCapture(e.pointerId)) bar.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+    try { if (root.hasPointerCapture(e.pointerId)) root.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
     const t = xToTime(e.clientX);
     opts.onSeek(t);
     opts.onDragEnd?.();
@@ -114,7 +126,7 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     dragging = false;
     removeClass(root, 'ci-360-video-progress--dragging');
     removeClass(tooltip, 'ci-360-video-progress-tooltip--visible');
-    try { if (bar.hasPointerCapture(e.pointerId)) bar.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+    try { if (root.hasPointerCapture(e.pointerId)) root.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
     opts.onDragEnd?.();
   };
 
@@ -135,10 +147,10 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
   };
 
   const cleanups = [
-    addListener(bar, 'pointerdown', onDown as EventListener),
-    addListener(bar, 'pointermove', onMove as EventListener),
-    addListener(bar, 'pointerup', onUp as EventListener),
-    addListener(bar, 'pointercancel', onCancel as EventListener),
+    addListener(root, 'pointerdown', onDown as EventListener),
+    addListener(root, 'pointermove', onMove as EventListener),
+    addListener(root, 'pointerup', onUp as EventListener),
+    addListener(root, 'pointercancel', onCancel as EventListener),
     addListener(root, 'pointermove', onHover as EventListener),
     addListener(root, 'pointerleave', onLeave as EventListener),
     addListener(bar, 'keydown', onKey as EventListener),
@@ -149,6 +161,15 @@ export function createProgressBar(opts: ProgressBarOptions): ProgressBar {
     update(currentTime, duration, bufferedEnd) {
       lastDuration = duration;
       lastCurrentTime = currentTime;
+      // While dragging the user owns the fill/handle position — don't let video
+      // timeupdate snap them back to the (not-yet-sought) playback time.
+      if (dragging) {
+        if (isFinite(duration) && duration > 0) {
+          const bufPct = Math.max(0, Math.min(100, (bufferedEnd / duration) * 100));
+          buffered.style.width = `${bufPct}%`;
+        }
+        return;
+      }
       if (!isFinite(duration) || duration <= 0) {
         fill.style.width = '0%';
         buffered.style.width = '0%';

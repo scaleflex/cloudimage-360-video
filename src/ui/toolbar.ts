@@ -85,7 +85,9 @@ export class Toolbar {
     this.element = createElement('div', 'ci-360-video-controls');
 
     // Progress bar
-    this.progressBar = createProgressBar({ onSeek: options.onSeek });
+    // onScrub === onSeek so the video follows the handle live while dragging,
+    // not only on release.
+    this.progressBar = createProgressBar({ onSeek: options.onSeek, onScrub: options.onSeek });
     this.element.appendChild(this.progressBar.element);
 
     // Row container
@@ -234,7 +236,9 @@ export class Toolbar {
         this.opts.onMuteToggle();
       }),
       addListener(this.volumeSlider, 'input', () => {
-        this.opts.onVolumeChange(parseFloat(this.volumeSlider.value));
+        const v = parseFloat(this.volumeSlider.value);
+        this.updateVolumeFill(v);
+        this.opts.onVolumeChange(v);
       }),
     );
 
@@ -352,6 +356,13 @@ export class Toolbar {
     // range thumb from the real volume.
     const safe = Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
     this.volumeSlider.value = String(safe);
+    this.updateVolumeFill(safe);
+  }
+
+  /** Paint the slider's left (filled) portion up to the current volume. */
+  private updateVolumeFill(v: number): void {
+    const pct = Math.max(0, Math.min(1, v)) * 100;
+    this.volumeSlider.style.setProperty('--ci-360-video-volume-pct', `${pct}%`);
   }
   setTime(currentTime: number, duration: number): void {
     this.lastTime = currentTime;
