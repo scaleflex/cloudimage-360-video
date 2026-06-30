@@ -414,11 +414,11 @@ export function Panorama() {
   ];
   const sfxCloudimage = [
     { name: '3D Viewer',          icon: IC.cube,     href: 'https://scaleflex.github.io/cloudimage-3d-view/' },
-    { name: '360 Image View',     icon: IC.rotate,   href: 'https://scaleflex.github.io/cloudimage-360-view/' },
+    { name: '360° Image View',     icon: IC.rotate,   href: 'https://scaleflex.github.io/cloudimage-360-view/' },
     { name: '360° Video',         icon: IC.player,   href: 'https://scaleflex.github.io/cloudimage-360-video/' },
     { name: 'Image Hotspots',     icon: IC.hotspot,  href: 'https://scaleflex.github.io/cloudimage-hotspot/' },
     { name: 'Video Hotspots',     icon: IC.video,    href: 'https://scaleflex.github.io/cloudimage-video-hotspot/' },
-    { name: 'Image Before After', icon: IC.split,    href: 'https://scaleflex.github.io/cloudimage-before-after/' },
+    { name: 'Image Before/After', icon: IC.split,    href: 'https://scaleflex.github.io/cloudimage-before-after/' },
     { name: 'Image Carousel',     icon: IC.carousel, href: 'https://scaleflex.github.io/cloudimage-carousel/' },
     { name: 'Image Crop',         icon: IC.crop,     href: 'https://scaleflex.github.io/cloudimage-image-crop/' },
     { name: 'Spotlight',          icon: IC.zoom,     href: 'https://scaleflex.github.io/cloudimage-spotlight/' },
