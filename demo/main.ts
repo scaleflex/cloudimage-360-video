@@ -408,9 +408,9 @@ export function Panorama() {
     player:  '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M10 9l5 3-5 3V9z" fill="currentColor"/></svg>',
   };
   const sfxScaleflex = [
-    { name: 'asset-picker',      icon: IC.grid,   href: 'https://scaleflex.github.io/asset-picker/' },
-    { name: 'uploader',          icon: IC.upload, href: 'https://scaleflex.github.io/uploader/' },
-    { name: 'experience-picker', icon: IC.layers, href: 'https://spotlight.scaleflex.com/docs/experience-picker' },
+    { name: 'Asset Picker',      icon: IC.grid,   href: 'https://scaleflex.github.io/asset-picker/' },
+    { name: 'Uploader',          icon: IC.upload, href: 'https://scaleflex.github.io/uploader/' },
+    { name: 'Experience Picker', icon: IC.layers, href: 'https://spotlight.scaleflex.com/docs/experience-picker' },
   ];
   const sfxCloudimage = [
     { name: '3D Viewer',          icon: IC.cube,     href: 'https://scaleflex.github.io/cloudimage-3d-view/' },
